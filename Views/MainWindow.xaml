@@ -65,7 +65,7 @@
                     <Button Content="Dashboard" Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowDashboardCommand}"/>
                     <Button Content="Manage Products" Style="{StaticResource SidebarButtonStyle}"/>
                     <Button Content="Sales History" Style="{StaticResource SidebarButtonStyle}"/>
-                    <Button Content="User Settings" Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowUserManagementCommand}"/>
+                    <Button Content="User Management" Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowUserManagementCommand}"/>
                     <Button Content="Store Settings" Style="{StaticResource SidebarButtonStyle}"/>
                 </StackPanel>
 
