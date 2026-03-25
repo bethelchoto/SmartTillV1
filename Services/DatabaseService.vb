@@ -38,6 +38,22 @@ Namespace Services
                     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
                 );")
 
+                ' Migration: Add Permissions column if it doesn't exist
+                Dim tableInfo = db.Query("PRAGMA table_info(Users)")
+                Dim hasPermissionsColumn = tableInfo.Any(Function(row) DirectCast(row.name, String).Equals("Permissions", StringComparison.OrdinalIgnoreCase))
+
+                If Not hasPermissionsColumn Then
+                    db.Execute("ALTER TABLE Users ADD COLUMN Permissions TEXT;")
+                End If
+
+                ' Seed Admin User if not exists
+                Dim adminExists = db.ExecuteScalar(Of Integer)("SELECT COUNT(*) FROM Users WHERE Role = 'Admin'")
+                If adminExists = 0 Then
+                    Dim hashedPassword = BCrypt.Net.BCrypt.HashPassword("admin123")
+                    db.Execute("INSERT INTO Users (Username, PasswordHash, Role, Permissions) VALUES (@Username, @PasswordHash, @Role, @Permissions)",
+                                New With {.Username = "admin", .PasswordHash = hashedPassword, .Role = "Admin", .Permissions = "{""All"": true}"})
+                End If
+
                 ' Create Products Table
                 db.Execute("CREATE TABLE IF NOT EXISTS Products (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -70,6 +86,32 @@ Namespace Services
             End Using
         End Sub
 
+        Public Function AuthenticateUser(username As String, password As String) As Models.User
+            Using db = GetConnection()
+                db.Open()
+                Dim user = db.QueryFirstOrDefault(Of Models.User)("SELECT * FROM Users WHERE Username = @Username", New With {.Username = username})
+                
+                If user IsNot Nothing AndAlso BCrypt.Net.BCrypt.Verify(password, user.PasswordHash) Then
+                    Return user
+                End If
+            End Using
+            Return Nothing
+        End Function
+
+        Public Function CreateUser(username As String, password As String, role As String, permissions As String) As Boolean
+            Try
+                Dim hashedPassword = BCrypt.Net.BCrypt.HashPassword(password)
+                Using db = GetConnection()
+                    db.Open()
+                    db.Execute("INSERT INTO Users (Username, PasswordHash, Role, Permissions) VALUES (@Username, @PasswordHash, @Role, @Permissions)",
+                                New With {.Username = username, .PasswordHash = hashedPassword, .Role = role, .Permissions = permissions})
+                    Return True
+                End Using
+            Catch ex As Exception
+                Return False
+            End Try
+        End Function
+
         Public Function VerifyDatabase() As String
             Try
                 If Not File.Exists(_dbPath) Then
@@ -78,7 +120,6 @@ Namespace Services
 
                 Using db = GetConnection()
                     db.Open()
-                    ' Try a simple query
                     Dim count = db.ExecuteScalar(Of Integer)("SELECT COUNT(*) FROM Users")
                     Return $"Database verified successfully. Tables exist and are accessible. Location: {_dbPath}"
                 End Using

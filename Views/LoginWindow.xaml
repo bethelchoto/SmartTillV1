@@ -1,0 +1,56 @@
+<Window x:Class="LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:SmartTill.V2.ViewModels"
+        mc:Ignorable="d"
+        Title="SmartTill - Login" Height="400" Width="350"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent">
+    
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </Window.Resources>
+
+    <Border Background="White" CornerRadius="15" BorderBrush="#EEE" BorderThickness="1">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="20" Opacity="0.1" ShadowDepth="0"/>
+        </Border.Effect>
+        
+        <Grid Margin="30">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <StackPanel Grid.Row="0" Margin="0,0,0,30">
+                <TextBlock Text="SmartTill" FontSize="28" FontWeight="Bold" Foreground="#222" HorizontalAlignment="Center"/>
+                <TextBlock Text="Management System" FontSize="12" Foreground="#888" HorizontalAlignment="Center"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="1">
+                <TextBlock Text="Username" Margin="0,0,0,5" Foreground="#666"/>
+                <TextBox x:Name="txtUsername" Text="{Binding Username}" Padding="10" Margin="0,0,0,15" Background="#F9F9F9" BorderThickness="0"/>
+                
+                <TextBlock Text="Password" Margin="0,0,0,5" Foreground="#666"/>
+                <PasswordBox x:Name="txtPassword" Padding="10" Margin="0,0,0,25" Background="#F9F9F9" BorderThickness="0"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="2">
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                <Button Content="LOGIN" Click="Login_Click" Height="45" Background="#222" Foreground="White" FontWeight="Bold" Cursor="Hand">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="8"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </StackPanel>
+            
+            <TextBlock Grid.Row="3" Text="Version 2.0" Foreground="#AAA" FontSize="10" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+        </Grid>
+    </Border>
+</Window>
