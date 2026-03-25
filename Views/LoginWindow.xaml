@@ -42,6 +42,7 @@
 
     <Border CornerRadius="20" Background="#2C1A4D" ClipToBounds="True">
         <Grid>
+            <!-- Window Layout -->
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1.2*"/>
                 <ColumnDefinition Width="*"/>
@@ -49,8 +50,7 @@
 
             <!-- Left Side: Branding -->
             <StackPanel Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center">
-                <!-- Redundant logo removed as requested -->
-                <TextBlock Text="SmartTill" FontSize="52" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+                <Image Source="/Assets/img/1-removebg-preview.png" Width="300" Margin="0,0,0,10"/>
                 <TextBlock Text="Powered By Advanced POS Logic" FontSize="16" Foreground="#AAA" HorizontalAlignment="Center" Margin="0,5,0,0"/>
             </StackPanel>
 
@@ -63,9 +63,9 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <!-- Top Right Controls -->
-                    <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,-20,-20,0">
-                        <Button Content="—" Click="Minimize_Click" Width="30" Height="30" Background="Transparent" BorderThickness="0" Foreground="#888" Cursor="Hand"/>
+                    <!-- Top Right Controls (Moved back from Top Left) -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,-20,-20,0" VerticalAlignment="Top">
+                        <Button Content="—" Click="Minimize_Click" Width="30" Height="30" Background="Transparent" BorderThickness="0" Foreground="#888" Cursor="Hand" Margin="0,0,5,0"/>
                         <Button Content="✕" Click="Close_Click" Width="30" Height="30" Background="Transparent" BorderThickness="0" Foreground="#888" Cursor="Hand"/>
                     </StackPanel>
 
@@ -99,7 +99,8 @@
                             </Button.Template>
                         </Button>
 
-                        <Button Content="Signup" Width="120" Height="45" Background="#D11111" Foreground="White" FontWeight="Bold">
+                        <!-- Signup replaced with Cancel as requested -->
+                        <Button Content="Cancel" Click="Close_Click" Width="120" Height="45" Background="#D11111" Foreground="White" FontWeight="Bold">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border Background="{TemplateBinding Background}" CornerRadius="22">
