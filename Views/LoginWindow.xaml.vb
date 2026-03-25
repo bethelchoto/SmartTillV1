@@ -14,8 +14,10 @@ Public Class LoginWindow
     End Sub
 
     Private Sub OnLoginSuccessful(user As Models.User)
-        ' Open MainWindow and close this one
+        ' Open MainWindow and pass the user
         Dim main = New MainWindow()
+        Dim mainVM = CType(main.DataContext, ViewModels.MainViewModel)
+        mainVM.CurrentUser = user
         main.Show()
         Me.Close()
     End Sub

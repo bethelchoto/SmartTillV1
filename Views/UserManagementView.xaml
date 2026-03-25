@@ -1,0 +1,89 @@
+<UserControl x:Class="UserManagementView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SmartTill.V2"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="900"
+             Background="White">
+
+    <Grid Margin="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Page Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,30">
+            <TextBlock Text="User Management" FontSize="28" FontWeight="Bold" Foreground="#2C1A4D"/>
+            <TextBlock Text="Add, edit, or remove system users and set their permissions." Foreground="#888" Margin="0,5,0,0"/>
+        </StackPanel>
+
+        <!-- Action Bar -->
+        <Border Grid.Row="1" Background="#F8F9FA" Padding="20,15" CornerRadius="8" Margin="0,0,0,20">
+            <Grid>
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="+ Create New User" Background="#2C1A4D" Foreground="White" Padding="20,8" FontWeight="Bold" Command="{Binding AddUserCommand}">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <TextBox Width="250" Padding="10,5" VerticalContentAlignment="Center" d:Text="Search users..."/>
+                    <Button Content="Refresh" Background="Transparent" Foreground="#2C1A4D" Margin="10,0,0,0" FontWeight="SemiBold" Command="{Binding RefreshCommand}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Users DataGrid -->
+        <Border Grid.Row="2" Background="White" BorderBrush="#EEE" BorderThickness="1" CornerRadius="8">
+            <DataGrid ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedUser}" AutoGenerateColumns="False" CanUserAddRows="False" GridLinesVisibility="None" Background="Transparent" BorderThickness="0" RowHeight="50" FontSize="14">
+                <DataGrid.Resources>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#F8F9FA"/>
+                        <Setter Property="Foreground" Value="#2C1A4D"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="Padding" Value="10,12"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                        <Setter Property="BorderBrush" Value="#EEE"/>
+                    </Style>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#E9ECEF"/>
+                                <Setter Property="Foreground" Value="Black"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.Resources>
+                
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
+                    <DataGridTextColumn Header="USERNAME" Binding="{Binding Username}" Width="*"/>
+                    <DataGridTextColumn Header="ROLE" Binding="{Binding Role}" Width="150"/>
+                    <DataGridTextColumn Header="CREATED AT" Binding="{Binding CreatedAt, StringFormat=\{0:dd MMM yyyy\}}" Width="180"/>
+                    
+                    <DataGridTemplateColumn Header="ACTIONS" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Button Content="Edit" Foreground="#007BFF" Background="Transparent" BorderThickness="0" Cursor="Hand" Margin="0,0,10,0"/>
+                                    <Button Content="Delete" Foreground="#D11111" Background="Transparent" BorderThickness="0" Cursor="Hand" Command="{Binding DataContext.DeleteUserCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+    </Grid>
+</UserControl>

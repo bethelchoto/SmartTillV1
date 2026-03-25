@@ -1,6 +1,8 @@
 Imports System.IO
 Imports Microsoft.Data.Sqlite
 Imports Dapper
+Imports System.Linq
+Imports System.Collections.Generic
 
 Namespace Services
     Public Class DatabaseService
@@ -105,6 +107,38 @@ Namespace Services
                     db.Open()
                     db.Execute("INSERT INTO Users (Username, PasswordHash, Role, Permissions) VALUES (@Username, @PasswordHash, @Role, @Permissions)",
                                 New With {.Username = username, .PasswordHash = hashedPassword, .Role = role, .Permissions = permissions})
+                    Return True
+                End Using
+            Catch ex As Exception
+                Return False
+            End Try
+        End Function
+
+        Public Function GetAllUsers() As List(Of Models.User)
+            Using db = GetConnection()
+                db.Open()
+                Return db.Query(Of Models.User)("SELECT * FROM Users").ToList()
+            End Using
+        End Function
+
+        Public Function DeleteUser(id As Integer) As Boolean
+            Try
+                Using db = GetConnection()
+                    db.Open()
+                    db.Execute("DELETE FROM Users WHERE Id = @Id", New With {.Id = id})
+                    Return True
+                End Using
+            Catch ex As Exception
+                Return False
+            End Try
+        End Function
+
+        Public Function UpdateUser(user As Models.User) As Boolean
+            Try
+                Using db = GetConnection()
+                    db.Open()
+                    db.Execute("UPDATE Users SET Role = @Role, Permissions = @Permissions WHERE Id = @Id",
+                                New With {.Role = user.Role, .Permissions = user.Permissions, .Id = user.Id})
                     Return True
                 End Using
             Catch ex As Exception

@@ -4,13 +4,140 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SmartTill.V2"
+        xmlns:vm="clr-namespace:SmartTill.V2.ViewModels"
+        xmlns:views="clr-namespace:SmartTill.V2.Views"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock Text="{Binding Title}" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
-            <TextBlock Text="Database Status:" FontWeight="SemiBold"/>
-            <TextBlock Text="{Binding Status}" Foreground="DimGray" FontStyle="Italic"/>
-        </StackPanel>
+        Title="SmartTill - Admin Dashboard" Height="700" Width="1200"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <!-- Navigation Templates -->
+        <DataTemplate DataType="{x:Type vm:UserManagementViewModel}">
+            <local:UserManagementView />
+        </DataTemplate>
+        
+        <!-- Style for Sidebar Buttons -->
+        <Style x:Key="SidebarButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#3D2A6D"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid Background="#F0F2F5">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Sidebar Navigation -->
+        <Border Grid.Column="0" Background="#2C1A4D">
+            <DockPanel>
+                <!-- User Info Header -->
+                <StackPanel DockPanel.Dock="Top" Margin="20,30,20,40">
+                    <Ellipse Width="70" Height="70" Fill="#3D2A6D" HorizontalAlignment="Center">
+                        <!-- Placeholder for User Icon -->
+                    </Ellipse>
+                    <TextBlock Text="{Binding UserDisplayName}" Foreground="White" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,15,0,0"/>
+                    <TextBlock Text="{Binding UserRoleDisplay}" Foreground="#AAA" FontSize="12" HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Navigation Links -->
+                <StackPanel DockPanel.Dock="Top">
+                    <Button Content="Dashboard" Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowDashboardCommand}"/>
+                    <Button Content="Manage Products" Style="{StaticResource SidebarButtonStyle}"/>
+                    <Button Content="Sales History" Style="{StaticResource SidebarButtonStyle}"/>
+                    <Button Content="User Settings" Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowUserManagementCommand}"/>
+                    <Button Content="Store Settings" Style="{StaticResource SidebarButtonStyle}"/>
+                </StackPanel>
+
+                <!-- Logout at Bottom -->
+                <Button DockPanel.Dock="Bottom" Content="Log Out" Style="{StaticResource SidebarButtonStyle}" VerticalAlignment="Bottom" Command="{Binding LogoutCommand}" Margin="0,0,0,20"/>
+            </DockPanel>
+        </Border>
+
+        <!-- Main Content Area -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="70"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Top Header Bar -->
+            <Border Grid.Row="0" Background="White" BorderBrush="#EEE" BorderThickness="0,0,0,1">
+                <Grid Margin="30,0">
+                    <TextBlock Text="Management Console" VerticalAlignment="Center" FontSize="20" FontWeight="SemiBold" Foreground="#2C1A4D"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Status}" Foreground="#888" VerticalAlignment="Center" Margin="0,0,20,0"/>
+                        <!-- Additional Header Info -->
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Dynamic Content Control -->
+            <ContentControl Grid.Row="1" Content="{Binding CurrentView}"/>
+            <Grid Grid.Row="1" Visibility="{Binding CurrentView, Converter={x:Static views:NullToVisibilityConverter.Instance}, ConverterParameter=Inverse}">
+                <!-- Default Dashboard Content (When CurrentView is null) -->
+                <ScrollViewer Margin="30">
+                    <StackPanel>
+                        <!-- Summary Cards Row -->
+                        <UniformGrid Columns="4" Margin="0,0,0,30">
+                            <!-- Daily Sales Card -->
+                            <Border Background="#4CAF50" CornerRadius="8" Height="100" Margin="0,0,15,0" Padding="20">
+                                <StackPanel>
+                                    <TextBlock Text="DAILY SALES" Foreground="White" FontSize="12" FontWeight="Bold"/>
+                                    <TextBlock Text="0.00" Foreground="White" FontSize="28" FontWeight="Bold" Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Product Line Card -->
+                            <Border Background="#F44336" CornerRadius="8" Height="100" Margin="0,0,15,0" Padding="20">
+                                <StackPanel>
+                                    <TextBlock Text="PRODUCT LINE" Foreground="White" FontSize="12" FontWeight="Bold"/>
+                                    <TextBlock Text="2" Foreground="White" FontSize="28" FontWeight="Bold" Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Stock On Hand Card -->
+                            <Border Background="#00BCD4" CornerRadius="8" Height="100" Margin="0,0,15,0" Padding="20">
+                                <StackPanel>
+                                    <TextBlock Text="STOCK ON HAND" Foreground="White" FontSize="12" FontWeight="Bold"/>
+                                    <TextBlock Text="230" Foreground="White" FontSize="28" FontWeight="Bold" Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Critical Items Card -->
+                            <Border Background="#FFC107" CornerRadius="8" Height="100" Padding="20">
+                                <StackPanel>
+                                    <TextBlock Text="CRITICAL ITEMS" Foreground="White" FontSize="12" FontWeight="Bold"/>
+                                    <TextBlock Text="0" Foreground="White" FontSize="28" FontWeight="Bold" Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+
+                        <TextBlock Text="Welcome to SmartTill Admin Panel" FontSize="24" FontWeight="Bold" Foreground="#2C1A4D" Margin="0,20,0,10"/>
+                        <TextBlock Text="Select a module from the sidebar to manage your store." Foreground="#888"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
     </Grid>
 </Window>
