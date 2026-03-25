@@ -106,7 +106,30 @@ Namespace ViewModels
                 Return _barcodeInput
             End Get
             Set(ByVal value As String)
-                SetProperty(_barcodeInput, value)
+                If SetProperty(_barcodeInput, value) Then
+                    UpdateFilteredInventory()
+                    IsSearchDropdownOpen = Not String.IsNullOrWhiteSpace(value)
+                End If
+            End Set
+        End Property
+
+        Private _isSearchDropdownOpen As Boolean
+        Public Property IsSearchDropdownOpen As Boolean
+            Get
+                Return _isSearchDropdownOpen
+            End Get
+            Set(ByVal value As Boolean)
+                SetProperty(_isSearchDropdownOpen, value)
+            End Set
+        End Property
+
+        Private _filteredInventory As ObservableCollection(Of Product)
+        Public Property FilteredInventory As ObservableCollection(Of Product)
+            Get
+                Return _filteredInventory
+            End Get
+            Set(ByVal value As ObservableCollection(Of Product))
+                SetProperty(_filteredInventory, value)
             End Set
         End Property
 
@@ -145,20 +168,57 @@ Namespace ViewModels
         Public Property QuickAddCommand As IRelayCommand
         Public Property AddItemCommand As IRelayCommand(Of Product)
         Public Property RemoveItemCommand As IRelayCommand(Of SaleDetail)
+        Public Property IncrementQtyCommand As IRelayCommand(Of SaleDetail)
+        Public Property DecrementQtyCommand As IRelayCommand(Of SaleDetail)
         Public Property CheckoutCommand As IRelayCommand
         Public Property AbortCommand As IRelayCommand
+        Public Property HoldCommand As IRelayCommand
+        Public Property RecallCommand As IRelayCommand(Of Integer)
+
+        Private _heldSales As ObservableCollection(Of Object)
+        Public Property HeldSales As ObservableCollection(Of Object)
+            Get
+                Return _heldSales
+            End Get
+            Set(ByVal value As ObservableCollection(Of Object))
+                SetProperty(_heldSales, value)
+            End Set
+        End Property
 
         Public Sub New(cashierId As Integer)
             _dbService = New DatabaseService()
             _cashierId = cashierId
             CartItems = New ObservableCollection(Of SaleDetail)()
+            FilteredInventory = New ObservableCollection(Of Product)()
             LoadInventory()
 
             QuickAddCommand = New RelayCommand(AddressOf AddByBarcode)
             AddItemCommand = New RelayCommand(Of Product)(AddressOf AddToCart)
             RemoveItemCommand = New RelayCommand(Of SaleDetail)(AddressOf RemoveFromCart)
+            IncrementQtyCommand = New RelayCommand(Of SaleDetail)(AddressOf IncrementQty)
+            DecrementQtyCommand = New RelayCommand(Of SaleDetail)(AddressOf DecrementQty)
             CheckoutCommand = New RelayCommand(AddressOf ExecuteCheckout, Function() CartItems.Count > 0)
             AbortCommand = New RelayCommand(AddressOf ClearAll)
+            HoldCommand = New RelayCommand(AddressOf ExecuteHold, Function() CartItems.Count > 0)
+            RecallCommand = New RelayCommand(Of Integer)(AddressOf ExecuteRecall)
+            
+            HeldSales = New ObservableCollection(Of Object)()
+            LoadHeldSales()
+        End Sub
+
+        Private Sub UpdateFilteredInventory()
+            If String.IsNullOrWhiteSpace(BarcodeInput) Then
+                FilteredInventory.Clear()
+                Return
+            End If
+
+            Dim query = BarcodeInput.ToLower()
+            Dim results = Inventory.Where(Function(p) p.Name.ToLower().Contains(query) OrElse p.Barcode.ToLower().Contains(query)).Take(5).ToList()
+            
+            FilteredInventory.Clear()
+            For Each p In results
+                FilteredInventory.Add(p)
+            Next
         End Sub
 
         Private Sub LoadInventory()
@@ -201,6 +261,24 @@ Namespace ViewModels
             UpdateSubtotal()
             CheckoutCommand.NotifyCanExecuteChanged()
             StatusMessage = $"Added {product.Name} to cart."
+            IsSearchDropdownOpen = False
+            BarcodeInput = String.Empty
+        End Sub
+
+        Private Sub IncrementQty(item As SaleDetail)
+            If item IsNot Nothing Then
+                item.Quantity += 1
+                item.Total = item.Quantity * item.UnitPrice * (1 - (item.DiscountPercent / 100))
+                UpdateSubtotal()
+            End If
+        End Sub
+
+        Private Sub DecrementQty(item As SaleDetail)
+            If item IsNot Nothing AndAlso item.Quantity > 1 Then
+                item.Quantity -= 1
+                item.Total = item.Quantity * item.UnitPrice * (1 - (item.DiscountPercent / 100))
+                UpdateSubtotal()
+            End If
         End Sub
 
         Private Sub RemoveFromCart(item As SaleDetail)
@@ -266,6 +344,51 @@ Namespace ViewModels
                 LoadInventory()
             Else
                 StatusMessage = "Transaction failed. Database error."
+            End If
+        End Sub
+
+        Private Sub LoadHeldSales()
+            Dim held = _dbService.GetHeldSales()
+            HeldSales.Clear()
+            For Each h In held
+                HeldSales.Add(h)
+            Next
+        End Sub
+
+        Private Sub ExecuteHold()
+            Dim sale = New Sale With {
+                .CashierId = _cashierId,
+                .Subtotal = Subtotal,
+                .DiscountAmount = Subtotal * (DiscountRate / 100),
+                .TaxAmount = TaxAmount,
+                .TotalAmount = TotalAmount,
+                .CustomerName = CustomerName
+            }
+
+            Dim ref = $"HOLD-{DateTime.Now:HHmm}"
+            If _dbService.HoldSale(sale, CartItems.ToList(), ref) Then
+                StatusMessage = $"Sale held with reference: {ref}"
+                ClearAll()
+                LoadHeldSales()
+            Else
+                StatusMessage = "Failed to hold sale."
+            End If
+        End Sub
+
+        Private Sub ExecuteRecall(heldId As Integer)
+            ' Using heldId from the object in HeldSales
+            Dim result = _dbService.RecallHeldSale(heldId)
+            If result.Item1 IsNot Nothing Then
+                ClearAll()
+                CustomerName = result.Item1.CustomerName
+                DiscountRate = If(result.Item1.Subtotal > 0, (result.Item1.DiscountAmount / result.Item1.Subtotal) * 100, 0)
+                
+                For Each d In result.Item2
+                    CartItems.Add(d)
+                Next
+                UpdateSubtotal()
+                LoadHeldSales()
+                StatusMessage = "Sale recalled."
             End If
         End Sub
     End Class

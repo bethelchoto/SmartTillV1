@@ -293,5 +293,52 @@ Namespace Services
                 Return db.QueryFirstOrDefault(Of Models.Product)("SELECT * FROM Products WHERE Barcode = @Barcode", New With {.Barcode = barcode})
             End Using
         End Function
+        ' Held Sales Methods
+        Public Function HoldSale(sale As Models.Sale, details As List(Of Models.SaleDetail), reference As String) As Boolean
+            Try
+                Using db = GetConnection()
+                    db.Open()
+                    Using trans = db.BeginTransaction()
+                        Dim sqlSale = "INSERT INTO HeldSales (CashierId, Subtotal, DiscountAmount, TaxAmount, TotalAmount, CustomerName, HeldDate, Reference) " &
+                                     "VALUES (@CashierId, @Subtotal, @DiscountAmount, @TaxAmount, @TotalAmount, @CustomerName, @SaleDate, @Reference); SELECT last_insert_rowid();"
+                        Dim heldId = db.ExecuteScalar(Of Integer)(sqlSale, New With {
+                            sale.CashierId, sale.Subtotal, sale.DiscountAmount, sale.TaxAmount, sale.TotalAmount, sale.CustomerName, .SaleDate = DateTime.Now, reference
+                        }, trans)
+
+                        For Each item In details
+                            Dim sqlItem = "INSERT INTO HeldSaleDetails (HeldSaleId, ProductId, ProductName, Quantity, UnitPrice, DiscountPercent, Total) " &
+                                         "VALUES (@HeldSaleId, @ProductId, @ProductName, @Quantity, @UnitPrice, @DiscountPercent, @Total)"
+                            db.Execute(sqlItem, New With {
+                                .HeldSaleId = heldId, item.ProductId, item.ProductName, item.Quantity, item.UnitPrice, item.DiscountPercent, item.Total
+                            }, trans)
+                        Next
+
+                        trans.Commit()
+                        Return True
+                    End Using
+                End Using
+            Catch ex As Exception
+                Return False
+            End Try
+        End Function
+
+        Public Function GetHeldSales() As IEnumerable(Of Object)
+            Using db = GetConnection()
+                Return db.Query("SELECT * FROM HeldSales ORDER BY HeldDate DESC")
+            End Using
+        End Function
+
+        Public Function RecallHeldSale(heldId As Integer) As (Models.Sale, List(Of Models.SaleDetail))
+            Using db = GetConnection()
+                Dim sale = db.Query(Of Models.Sale)("SELECT * FROM HeldSales WHERE Id = @heldId", New With {heldId}).FirstOrDefault()
+                Dim details = db.Query(Of Models.SaleDetail)("SELECT * FROM HeldSaleDetails WHERE HeldSaleId = @heldId", New With {heldId}).ToList()
+
+                ' Delete after recall
+                db.Execute("DELETE FROM HeldSaleDetails WHERE HeldSaleId = @heldId", New With {heldId})
+                db.Execute("DELETE FROM HeldSales WHERE Id = @heldId", New With {heldId})
+
+                Return (sale, details)
+            End Using
+        End Function
     End Class
 End Namespace
