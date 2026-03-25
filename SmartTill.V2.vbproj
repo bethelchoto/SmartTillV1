@@ -125,6 +125,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ViewModels\MainViewModel.vb" />
+    <Compile Include="Models\User.vb" />
+    <Compile Include="Models\Product.vb" />
+    <Compile Include="Models\Sale.vb" />
+    <Compile Include="Services\DatabaseService.vb" />
   </ItemGroup>
   <ItemGroup>
     <Import Include="System.Threading.Tasks" />
