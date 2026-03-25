@@ -18,6 +18,9 @@ Namespace ViewModels
                 SetProperty(_currentUser, value)
                 OnPropertyChanged(NameOf(UserDisplayName))
                 OnPropertyChanged(NameOf(UserRoleDisplay))
+                OnPropertyChanged(NameOf(IsAdmin))
+                OnPropertyChanged(NameOf(IsManager))
+                OnPropertyChanged(NameOf(IsTailor))
             End Set
         End Property
 
@@ -30,6 +33,25 @@ Namespace ViewModels
         Public ReadOnly Property UserRoleDisplay As String
             Get
                 Return If(CurrentUser?.Role, "Unknown")
+            End Get
+        End Property
+
+        Public ReadOnly Property IsAdmin As Boolean
+            Get
+                Return CurrentUser?.Role = "Admin"
+            End Get
+        End Property
+
+        Public ReadOnly Property IsManager As Boolean
+            Get
+                ' Managers and Admins can see management stuff
+                Return CurrentUser?.Role = "Manager" OrElse IsAdmin
+            End Get
+        End Property
+
+        Public ReadOnly Property IsTailor As Boolean
+            Get
+                Return CurrentUser?.Role = "Tailor"
             End Get
         End Property
 

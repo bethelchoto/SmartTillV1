@@ -7,10 +7,12 @@
         xmlns:vm="clr-namespace:SmartTill.V2.ViewModels"
         xmlns:views="clr-namespace:SmartTill.V2.Views"
         mc:Ignorable="d"
-        Title="SmartTill - Admin Dashboard" Height="700" Width="1200"
+        Title="SmartTill - POS System" Height="700" Width="1200"
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        
         <!-- Navigation Templates -->
         <DataTemplate DataType="{x:Type vm:UserManagementViewModel}">
             <local:UserManagementView />
@@ -63,10 +65,19 @@
                 <!-- Navigation Links -->
                 <StackPanel DockPanel.Dock="Top">
                     <Button Content="Dashboard" Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowDashboardCommand}"/>
-                    <Button Content="Manage Products" Style="{StaticResource SidebarButtonStyle}"/>
-                    <Button Content="Sales History" Style="{StaticResource SidebarButtonStyle}"/>
-                    <Button Content="User Management" Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowUserManagementCommand}"/>
-                    <Button Content="Store Settings" Style="{StaticResource SidebarButtonStyle}"/>
+                    
+                    <Button Content="Manage Products" Style="{StaticResource SidebarButtonStyle}" 
+                            Visibility="{Binding IsManager, Converter={StaticResource BoolToVis}}"/>
+                    
+                    <Button Content="Sales History" Style="{StaticResource SidebarButtonStyle}" 
+                            Visibility="{Binding IsManager, Converter={StaticResource BoolToVis}}"/>
+                    
+                    <Button Content="User Management" Style="{StaticResource SidebarButtonStyle}" 
+                            Command="{Binding ShowUserManagementCommand}"
+                            Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
+                    
+                    <Button Content="Store Settings" Style="{StaticResource SidebarButtonStyle}"
+                            Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
                 </StackPanel>
 
                 <!-- Logout at Bottom -->
@@ -87,7 +98,6 @@
                     <TextBlock Text="Management Console" VerticalAlignment="Center" FontSize="20" FontWeight="SemiBold" Foreground="#2C1A4D"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <TextBlock Text="{Binding Status}" Foreground="#888" VerticalAlignment="Center" Margin="0,0,20,0"/>
-                        <!-- Additional Header Info -->
                     </StackPanel>
                 </Grid>
             </Border>
@@ -95,12 +105,11 @@
             <!-- Dynamic Content Control -->
             <ContentControl Grid.Row="1" Content="{Binding CurrentView}"/>
             <Grid Grid.Row="1" Visibility="{Binding CurrentView, Converter={x:Static views:NullToVisibilityConverter.Instance}, ConverterParameter=Inverse}">
-                <!-- Default Dashboard Content (When CurrentView is null) -->
+                <!-- Default Dashboard Content -->
                 <ScrollViewer Margin="30">
                     <StackPanel>
-                        <!-- Summary Cards Row -->
-                        <UniformGrid Columns="4" Margin="0,0,0,30">
-                            <!-- Daily Sales Card -->
+                        <!-- Summary Cards Row (Admins/Managers Only) -->
+                        <UniformGrid Columns="4" Margin="0,0,0,30" Visibility="{Binding IsManager, Converter={StaticResource BoolToVis}}">
                             <Border Background="#4CAF50" CornerRadius="8" Height="100" Margin="0,0,15,0" Padding="20">
                                 <StackPanel>
                                     <TextBlock Text="DAILY SALES" Foreground="White" FontSize="12" FontWeight="Bold"/>
@@ -108,7 +117,6 @@
                                 </StackPanel>
                             </Border>
 
-                            <!-- Product Line Card -->
                             <Border Background="#F44336" CornerRadius="8" Height="100" Margin="0,0,15,0" Padding="20">
                                 <StackPanel>
                                     <TextBlock Text="PRODUCT LINE" Foreground="White" FontSize="12" FontWeight="Bold"/>
@@ -116,7 +124,6 @@
                                 </StackPanel>
                             </Border>
 
-                            <!-- Stock On Hand Card -->
                             <Border Background="#00BCD4" CornerRadius="8" Height="100" Margin="0,0,15,0" Padding="20">
                                 <StackPanel>
                                     <TextBlock Text="STOCK ON HAND" Foreground="White" FontSize="12" FontWeight="Bold"/>
@@ -124,7 +131,6 @@
                                 </StackPanel>
                             </Border>
 
-                            <!-- Critical Items Card -->
                             <Border Background="#FFC107" CornerRadius="8" Height="100" Padding="20">
                                 <StackPanel>
                                     <TextBlock Text="CRITICAL ITEMS" Foreground="White" FontSize="12" FontWeight="Bold"/>
@@ -133,8 +139,15 @@
                             </Border>
                         </UniformGrid>
 
-                        <TextBlock Text="Welcome to SmartTill Admin Panel" FontSize="24" FontWeight="Bold" Foreground="#2C1A4D" Margin="0,20,0,10"/>
-                        <TextBlock Text="Select a module from the sidebar to manage your store." Foreground="#888"/>
+                        <TextBlock Text="{Binding UserDisplayName, StringFormat='Welcome, {0}!'}" FontSize="24" FontWeight="Bold" Foreground="#2C1A4D" Margin="0,20,0,10"/>
+                        
+                        <!-- Admin Welcome Message -->
+                        <TextBlock Text="You are logged in as an Administrator. You have full access to system management and reports." 
+                                   Foreground="#888" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
+                        
+                        <!-- Tailor Welcome Message -->
+                        <TextBlock Text="Welcome to your SmartTill POS terminal. Use the sidebar to access permitted tasks." 
+                                   Foreground="#888" Visibility="{Binding IsTailor, Converter={StaticResource BoolToVis}}"/>
                     </StackPanel>
                 </ScrollViewer>
             </Grid>
