@@ -80,6 +80,7 @@ Namespace ViewModels
         Public Property ShowDashboardCommand As IRelayCommand
         Public Property ShowProductManagementCommand As IRelayCommand
         Public Property ShowUserManagementCommand As IRelayCommand
+        Public Property ShowPOSCommand As IRelayCommand
         Public Property LogoutCommand As IRelayCommand
 
         Public Sub New()
@@ -92,6 +93,7 @@ Namespace ViewModels
             ShowProductManagementCommand = New RelayCommand(AddressOf ShowProductManagement)
             ShowUserManagementCommand = New RelayCommand(AddressOf ShowUserManagement)
             ShowCategoryManagementCommand = New RelayCommand(AddressOf ShowCategoryManagement)
+            ShowPOSCommand = New RelayCommand(AddressOf ShowPOS)
             LogoutCommand = New RelayCommand(AddressOf Logout)
             ToggleProductsMenuCommand = New RelayCommand(Sub() IsProductsMenuExpanded = Not IsProductsMenuExpanded)
         End Sub
@@ -114,6 +116,10 @@ Namespace ViewModels
 
         Private Sub ShowUserManagement()
             CurrentView = New UserManagementViewModel()
+        End Sub
+
+        Private Sub ShowPOS()
+            CurrentView = New POSViewModel(CurrentUser.Id)
         End Sub
 
         Private Sub Logout()

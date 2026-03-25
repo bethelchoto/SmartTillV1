@@ -20,6 +20,9 @@
         <DataTemplate DataType="{x:Type vm:ProductManagementViewModel}">
             <local:ProductManagementView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:POSViewModel}">
+            <local:POSView />
+        </DataTemplate>
         
         <!-- Style for Sidebar Buttons -->
         <Style x:Key="SidebarButtonStyle" TargetType="Button">
@@ -76,6 +79,8 @@
                 <ScrollViewer DockPanel.Dock="Top" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
                         <Button Content="Dashboard" Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowDashboardCommand}"/>
+                        
+                        <Button Content="POS Terminal" Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowPOSCommand}" Background="#3D2A6D"/>
                         
                         <!-- Products Expandable Menu -->
                         <Grid Visibility="{Binding IsManager, Converter={StaticResource BoolToVis}}">

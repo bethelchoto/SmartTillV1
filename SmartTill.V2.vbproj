@@ -129,6 +129,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\POSView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Compile Include="Application.xaml.vb">
       <DependentUpon>Application.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -140,6 +144,7 @@
     <Compile Include="ViewModels\MainViewModel.vb" />
     <Compile Include="ViewModels\UserManagementViewModel.vb" />
     <Compile Include="ViewModels\ProductManagementViewModel.vb" />
+    <Compile Include="ViewModels\POSViewModel.vb" />
     <Compile Include="Models\User.vb" />
     <Compile Include="Models\Product.vb" />
     <Compile Include="Models\Category.vb" />
@@ -154,6 +159,9 @@
     </Compile>
     <Compile Include="Views\ProductManagementView.xaml.vb">
       <DependentUpon>ProductManagementView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\POSView.xaml.vb">
+      <DependentUpon>POSView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\NullToVisibilityConverter.vb" />
   </ItemGroup>

@@ -243,5 +243,42 @@ Namespace Services
                 Return False
             End Try
         End Function
+        ' Sale Processing
+        Public Function ProcessSale(sale As Models.Sale, details As List(Of Models.SaleDetail)) As Boolean
+            Using db = GetConnection()
+                db.Open()
+                Using transaction = db.BeginTransaction()
+                    Try
+                        ' 1. Insert Sale record and get its ID
+                        Dim saleId = db.QuerySingle(Of Integer)("INSERT INTO Sales (TotalAmount, CashierId, SaleDate) VALUES (@TotalAmount, @CashierId, @SaleDate); SELECT last_insert_rowid();",
+                            New With {.TotalAmount = sale.TotalAmount, .CashierId = sale.CashierId, .SaleDate = sale.SaleDate}, transaction)
+
+                        ' 2. Insert Sale Details and update stock for each item
+                        For Each detail In details
+                            detail.SaleId = saleId
+                            db.Execute("INSERT INTO SaleDetails (SaleId, ProductId, Quantity, UnitPrice) VALUES (@SaleId, @ProductId, @Quantity, @UnitPrice)",
+                                detail, transaction)
+
+                            ' Reduce stock amount
+                            db.Execute("UPDATE Products SET StockQuantity = StockQuantity - @Qty WHERE Id = @Id",
+                                New With {.Qty = detail.Quantity, .Id = detail.ProductId}, transaction)
+                        Next
+
+                        transaction.Commit()
+                        Return True
+                    Catch ex As Exception
+                        transaction.Rollback()
+                        Return False
+                    End Try
+                End Using
+            End Using
+        End Function
+
+        Public Function GetProductByBarcode(barcode As String) As Models.Product
+            Using db = GetConnection()
+                db.Open()
+                Return db.QueryFirstOrDefault(Of Models.Product)("SELECT * FROM Products WHERE Barcode = @Barcode", New With {.Barcode = barcode})
+            End Using
+        End Function
     End Class
 End Namespace
