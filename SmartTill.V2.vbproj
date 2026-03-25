@@ -125,6 +125,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\ProductManagementView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Compile Include="Application.xaml.vb">
       <DependentUpon>Application.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -135,8 +139,10 @@
     </Compile>
     <Compile Include="ViewModels\MainViewModel.vb" />
     <Compile Include="ViewModels\UserManagementViewModel.vb" />
+    <Compile Include="ViewModels\ProductManagementViewModel.vb" />
     <Compile Include="Models\User.vb" />
     <Compile Include="Models\Product.vb" />
+    <Compile Include="Models\Category.vb" />
     <Compile Include="Models\Sale.vb" />
     <Compile Include="Services\DatabaseService.vb" />
     <Compile Include="ViewModels\LoginViewModel.vb" />
@@ -145,6 +151,9 @@
     </Compile>
     <Compile Include="Views\UserManagementView.xaml.vb">
       <DependentUpon>UserManagementView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ProductManagementView.xaml.vb">
+      <DependentUpon>ProductManagementView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\NullToVisibilityConverter.vb" />
   </ItemGroup>

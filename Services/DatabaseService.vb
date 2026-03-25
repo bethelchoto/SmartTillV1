@@ -40,6 +40,12 @@ Namespace Services
                     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
                 );")
 
+                ' Create Categories Table
+                db.Execute("CREATE TABLE IF NOT EXISTS Categories (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL UNIQUE
+                );")
+
                 ' Migration: Add Permissions column if it doesn't exist
                 Dim tableInfo = db.Query("PRAGMA table_info(Users)")
                 Dim hasPermissionsColumn = tableInfo.Any(Function(row) DirectCast(row.name, String).Equals("Permissions", StringComparison.OrdinalIgnoreCase))
@@ -159,6 +165,82 @@ Namespace Services
                 End Using
             Catch ex As Exception
                 Return $"Database verification failed: {ex.Message}"
+            End Try
+        End Function
+        Public Function GetAllProducts() As List(Of Models.Product)
+            Using db = GetConnection()
+                db.Open()
+                Return db.Query(Of Models.Product)("SELECT * FROM Products").ToList()
+            End Using
+        End Function
+
+        Public Function CreateProduct(name As String, barcode As String, price As Decimal, stock As Integer, category As String) As Boolean
+            Try
+                Using db = GetConnection()
+                    db.Open()
+                    db.Execute("INSERT INTO Products (Name, Barcode, Price, StockQuantity, Category) VALUES (@Name, @Barcode, @Price, @Stock, @Category)",
+                                New With {.Name = name, .Barcode = barcode, .Price = price, .Stock = stock, .Category = category})
+                    Return True
+                End Using
+            Catch ex As Exception
+                Return False
+            End Try
+        End Function
+
+        Public Function DeleteProduct(id As Integer) As Boolean
+            Try
+                Using db = GetConnection()
+                    db.Open()
+                    db.Execute("DELETE FROM Products WHERE Id = @Id", New With {.Id = id})
+                    Return True
+                End Using
+            Catch ex As Exception
+                Return False
+            End Try
+        End Function
+
+        Public Function UpdateProduct(product As Models.Product) As Boolean
+            Try
+                Using db = GetConnection()
+                    db.Open()
+                    db.Execute("UPDATE Products SET Name = @Name, Barcode = @Barcode, Price = @Price, StockQuantity = @StockQuantity, Category = @Category WHERE Id = @Id",
+                                New With {.Name = product.Name, .Barcode = product.Barcode, .Price = product.Price, .StockQuantity = product.StockQuantity, .Category = product.Category, .Id = product.Id})
+                    Return True
+                End Using
+            Catch ex As Exception
+                Return False
+            End Try
+        End Function
+
+        ' Category CRUD
+        Public Function GetAllCategories() As List(Of Models.Category)
+            Using db = GetConnection()
+                db.Open()
+                Return db.Query(Of Models.Category)("SELECT * FROM Categories").ToList()
+            End Using
+        End Function
+
+        Public Function CreateCategory(name As String) As Boolean
+            Try
+                Using db = GetConnection()
+                    db.Open()
+                    db.Execute("INSERT INTO Categories (Name) VALUES (@Name)", New With {.Name = name})
+                    Return True
+                End Using
+            Catch ex As Exception
+                Return False
+            End Try
+        End Function
+
+        Public Function DeleteCategory(id As Integer) As Boolean
+            Try
+                Using db = GetConnection()
+                    db.Open()
+                    db.Execute("DELETE FROM Categories WHERE Id = @Id", New With {.Id = id})
+                    Return True
+                End Using
+            Catch ex As Exception
+                Return False
             End Try
         End Function
     End Class

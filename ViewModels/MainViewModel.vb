@@ -65,8 +65,20 @@ Namespace ViewModels
             End Set
         End Property
 
-        ' Commands for Navigation
+        Private _isProductsMenuExpanded As Boolean = False
+        Public Property IsProductsMenuExpanded As Boolean
+            Get
+                Return _isProductsMenuExpanded
+            End Get
+            Set(ByVal value As Boolean)
+                SetProperty(_isProductsMenuExpanded, value)
+            End Set
+        End Property
+
+        Public Property ToggleProductsMenuCommand As IRelayCommand
+        Public Property ShowCategoryManagementCommand As IRelayCommand
         Public Property ShowDashboardCommand As IRelayCommand
+        Public Property ShowProductManagementCommand As IRelayCommand
         Public Property ShowUserManagementCommand As IRelayCommand
         Public Property LogoutCommand As IRelayCommand
 
@@ -77,12 +89,27 @@ Namespace ViewModels
             ' CurrentView = New DashboardViewModel() ' To be implemented
 
             ShowDashboardCommand = New RelayCommand(AddressOf ShowDashboard)
+            ShowProductManagementCommand = New RelayCommand(AddressOf ShowProductManagement)
             ShowUserManagementCommand = New RelayCommand(AddressOf ShowUserManagement)
+            ShowCategoryManagementCommand = New RelayCommand(AddressOf ShowCategoryManagement)
             LogoutCommand = New RelayCommand(AddressOf Logout)
+            ToggleProductsMenuCommand = New RelayCommand(Sub() IsProductsMenuExpanded = Not IsProductsMenuExpanded)
         End Sub
 
         Private Sub ShowDashboard()
-            ' CurrentView = New DashboardViewModel()
+            CurrentView = Nothing
+        End Sub
+
+        Private Sub ShowProductManagement()
+            Dim vm = New ProductManagementViewModel()
+            vm.SelectedTabIndex = 1 ' Product Management Tab
+            CurrentView = vm
+        End Sub
+
+        Private Sub ShowCategoryManagement()
+            Dim vm = New ProductManagementViewModel()
+            vm.SelectedTabIndex = 0 ' Category Management Tab
+            CurrentView = vm
         End Sub
 
         Private Sub ShowUserManagement()

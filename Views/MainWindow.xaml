@@ -7,7 +7,7 @@
         xmlns:vm="clr-namespace:SmartTill.V2.ViewModels"
         xmlns:views="clr-namespace:SmartTill.V2.Views"
         mc:Ignorable="d"
-        Title="SmartTill - POS System" Height="700" Width="1200"
+        Title="SmartTill - POS System" Height="800" Width="1300"
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
@@ -17,13 +17,16 @@
         <DataTemplate DataType="{x:Type vm:UserManagementViewModel}">
             <local:UserManagementView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ProductManagementViewModel}">
+            <local:ProductManagementView />
+        </DataTemplate>
         
         <!-- Style for Sidebar Buttons -->
         <Style x:Key="SidebarButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="Padding" Value="25,12"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Height" Value="50"/>
@@ -42,11 +45,18 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <Style x:Key="SubMenuButtonStyle" TargetType="Button" BasedOn="{StaticResource SidebarButtonStyle}">
+            <Setter Property="Padding" Value="50,10"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Foreground" Value="#CCC"/>
+        </Style>
     </Window.Resources>
 
     <Grid Background="#F0F2F5">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="260"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
@@ -63,22 +73,38 @@
                 </StackPanel>
 
                 <!-- Navigation Links -->
-                <StackPanel DockPanel.Dock="Top">
-                    <Button Content="Dashboard" Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowDashboardCommand}"/>
-                    
-                    <Button Content="Manage Products" Style="{StaticResource SidebarButtonStyle}" 
-                            Visibility="{Binding IsManager, Converter={StaticResource BoolToVis}}"/>
-                    
-                    <Button Content="Sales History" Style="{StaticResource SidebarButtonStyle}" 
-                            Visibility="{Binding IsManager, Converter={StaticResource BoolToVis}}"/>
-                    
-                    <Button Content="User Management" Style="{StaticResource SidebarButtonStyle}" 
-                            Command="{Binding ShowUserManagementCommand}"
-                            Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
-                    
-                    <Button Content="Store Settings" Style="{StaticResource SidebarButtonStyle}"
-                            Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
-                </StackPanel>
+                <ScrollViewer DockPanel.Dock="Top" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <Button Content="Dashboard" Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowDashboardCommand}"/>
+                        
+                        <!-- Products Expandable Menu -->
+                        <Grid Visibility="{Binding IsManager, Converter={StaticResource BoolToVis}}">
+                            <StackPanel>
+                                <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding ToggleProductsMenuCommand}">
+                                    <Grid Width="190">
+                                        <TextBlock Text="Products" VerticalAlignment="Center"/>
+                                        <TextBlock Text="⌵" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="18"/>
+                                    </Grid>
+                                </Button>
+                                
+                                <StackPanel Visibility="{Binding IsProductsMenuExpanded, Converter={StaticResource BoolToVis}}">
+                                    <Button Content="Category Management" Style="{StaticResource SubMenuButtonStyle}" Command="{Binding ShowCategoryManagementCommand}"/>
+                                    <Button Content="Product Management" Style="{StaticResource SubMenuButtonStyle}" Command="{Binding ShowProductManagementCommand}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <Button Content="Sales History" Style="{StaticResource SidebarButtonStyle}" 
+                                Visibility="{Binding IsManager, Converter={StaticResource BoolToVis}}"/>
+                        
+                        <Button Content="User Management" Style="{StaticResource SidebarButtonStyle}" 
+                                Command="{Binding ShowUserManagementCommand}"
+                                Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
+                        
+                        <Button Content="Store Settings" Style="{StaticResource SidebarButtonStyle}"
+                                Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
+                    </StackPanel>
+                </ScrollViewer>
 
                 <!-- Logout at Bottom -->
                 <Button DockPanel.Dock="Bottom" Content="Log Out" Style="{StaticResource SidebarButtonStyle}" VerticalAlignment="Bottom" Command="{Binding LogoutCommand}" Margin="0,0,0,20"/>
@@ -110,27 +136,25 @@
                     <StackPanel>
                         <!-- Summary Cards Row (Admins/Managers Only) -->
                         <UniformGrid Columns="4" Margin="0,0,0,30" Visibility="{Binding IsManager, Converter={StaticResource BoolToVis}}">
+                            <!-- (Existing Cards) -->
                             <Border Background="#4CAF50" CornerRadius="8" Height="100" Margin="0,0,15,0" Padding="20">
                                 <StackPanel>
                                     <TextBlock Text="DAILY SALES" Foreground="White" FontSize="12" FontWeight="Bold"/>
                                     <TextBlock Text="0.00" Foreground="White" FontSize="28" FontWeight="Bold" Margin="0,5,0,0"/>
                                 </StackPanel>
                             </Border>
-
                             <Border Background="#F44336" CornerRadius="8" Height="100" Margin="0,0,15,0" Padding="20">
                                 <StackPanel>
                                     <TextBlock Text="PRODUCT LINE" Foreground="White" FontSize="12" FontWeight="Bold"/>
                                     <TextBlock Text="2" Foreground="White" FontSize="28" FontWeight="Bold" Margin="0,5,0,0"/>
                                 </StackPanel>
                             </Border>
-
                             <Border Background="#00BCD4" CornerRadius="8" Height="100" Margin="0,0,15,0" Padding="20">
                                 <StackPanel>
                                     <TextBlock Text="STOCK ON HAND" Foreground="White" FontSize="12" FontWeight="Bold"/>
                                     <TextBlock Text="230" Foreground="White" FontSize="28" FontWeight="Bold" Margin="0,5,0,0"/>
                                 </StackPanel>
                             </Border>
-
                             <Border Background="#FFC107" CornerRadius="8" Height="100" Padding="20">
                                 <StackPanel>
                                     <TextBlock Text="CRITICAL ITEMS" Foreground="White" FontSize="12" FontWeight="Bold"/>
@@ -141,11 +165,9 @@
 
                         <TextBlock Text="{Binding UserDisplayName, StringFormat='Welcome, {0}!'}" FontSize="24" FontWeight="Bold" Foreground="#2C1A4D" Margin="0,20,0,10"/>
                         
-                        <!-- Admin Welcome Message -->
+                        <!-- Welcome Messages -->
                         <TextBlock Text="You are logged in as an Administrator. You have full access to system management and reports." 
                                    Foreground="#888" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVis}}"/>
-                        
-                        <!-- Tailor Welcome Message -->
                         <TextBlock Text="Welcome to your SmartTill POS terminal. Use the sidebar to access permitted tasks." 
                                    Foreground="#888" Visibility="{Binding IsTailor, Converter={StaticResource BoolToVis}}"/>
                     </StackPanel>
