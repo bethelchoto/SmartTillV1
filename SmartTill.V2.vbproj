@@ -188,6 +188,12 @@
     <None Include="SmartTill.V2_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Assets\img\1-removebg-preview.png" />
+    <Resource Include="Assets\img\3-removebg-preview.png" />
+    <Resource Include="Assets\img\4-removebg-preview.png" />
+    <Resource Include="Assets\img\logo_large.png" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>

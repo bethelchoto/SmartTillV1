@@ -16,7 +16,7 @@ Namespace Services
 
             _dbPath = Path.Combine(appData, "SmartTillV2.db")
             _connectionString = $"Data Source={_dbPath}"
-            
+
             ' Initialize the database
             InitializeDatabase()
         End Sub
@@ -90,7 +90,7 @@ Namespace Services
             Using db = GetConnection()
                 db.Open()
                 Dim user = db.QueryFirstOrDefault(Of Models.User)("SELECT * FROM Users WHERE Username = @Username", New With {.Username = username})
-                
+
                 If user IsNot Nothing AndAlso BCrypt.Net.BCrypt.Verify(password, user.PasswordHash) Then
                     Return user
                 End If
