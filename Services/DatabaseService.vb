@@ -75,19 +75,28 @@ Namespace Services
                 ' Create Sales Table
                 db.Execute("CREATE TABLE IF NOT EXISTS Sales (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    TotalAmount DECIMAL(10,2) NOT NULL,
+                    Subtotal DECIMAL,
+                    DiscountAmount DECIMAL,
+                    TaxAmount DECIMAL,
+                    TotalAmount DECIMAL,
+                    AmountPaid DECIMAL,
+                    ChangeDue DECIMAL,
+                    PaymentMethod TEXT,
+                    CustomerName TEXT,
                     CashierId INTEGER,
-                    SaleDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    SaleDate DATETIME,
                     FOREIGN KEY (CashierId) REFERENCES Users(Id)
                 );")
 
                 ' Create SaleDetails Table
                 db.Execute("CREATE TABLE IF NOT EXISTS SaleDetails (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    SaleId INTEGER NOT NULL,
-                    ProductId INTEGER NOT NULL,
-                    Quantity INTEGER NOT NULL,
-                    UnitPrice DECIMAL(10,2) NOT NULL,
+                    SaleId INTEGER,
+                    ProductId INTEGER,
+                    Quantity INTEGER,
+                    UnitPrice DECIMAL,
+                    DiscountPercent DECIMAL,
+                    Total DECIMAL,
                     FOREIGN KEY (SaleId) REFERENCES Sales(Id),
                     FOREIGN KEY (ProductId) REFERENCES Products(Id)
                 );")
@@ -250,13 +259,17 @@ Namespace Services
                 Using transaction = db.BeginTransaction()
                     Try
                         ' 1. Insert Sale record and get its ID
-                        Dim saleId = db.QuerySingle(Of Integer)("INSERT INTO Sales (TotalAmount, CashierId, SaleDate) VALUES (@TotalAmount, @CashierId, @SaleDate); SELECT last_insert_rowid();",
-                            New With {.TotalAmount = sale.TotalAmount, .CashierId = sale.CashierId, .SaleDate = sale.SaleDate}, transaction)
+                        Dim sqlSale = "INSERT INTO Sales (Subtotal, DiscountAmount, TaxAmount, TotalAmount, AmountPaid, ChangeDue, PaymentMethod, CustomerName, CashierId, SaleDate) 
+                                       VALUES (@Subtotal, @DiscountAmount, @TaxAmount, @TotalAmount, @AmountPaid, @ChangeDue, @PaymentMethod, @CustomerName, @CashierId, @SaleDate); 
+                                       SELECT last_insert_rowid();"
+
+                        Dim saleId = db.QuerySingle(Of Integer)(sqlSale, sale, transaction)
 
                         ' 2. Insert Sale Details and update stock for each item
                         For Each detail In details
                             detail.SaleId = saleId
-                            db.Execute("INSERT INTO SaleDetails (SaleId, ProductId, Quantity, UnitPrice) VALUES (@SaleId, @ProductId, @Quantity, @UnitPrice)",
+                            db.Execute("INSERT INTO SaleDetails (SaleId, ProductId, Quantity, UnitPrice, DiscountPercent, Total) 
+                                        VALUES (@SaleId, @ProductId, @Quantity, @UnitPrice, @DiscountPercent, @Total)",
                                 detail, transaction)
 
                             ' Reduce stock amount

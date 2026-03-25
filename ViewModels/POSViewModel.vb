@@ -12,37 +12,112 @@ Namespace ViewModels
         Private ReadOnly _dbService As DatabaseService
         Private _cashierId As Integer
 
-        ' Cart management
-        Public Class CartItem
-            Public Property Product As Product
-            Public Property Quantity As Integer
-            Public Property Subtotal As Decimal
-        End Class
-
-        Private _cartItems As ObservableCollection(Of CartItem)
-        Public Property CartItems As ObservableCollection(Of CartItem)
+        ' Financials
+        Private _subtotal As Decimal
+        Public Property Subtotal As Decimal
             Get
-                Return _cartItems
+                Return _subtotal
             End Get
-            Set(ByVal value As ObservableCollection(Of CartItem))
-                SetProperty(_cartItems, value)
-                OnPropertyChanged(NameOf(TotalAmount))
+            Set(ByVal value As Decimal)
+                SetProperty(_subtotal, value)
+                CalculateTotals()
             End Set
         End Property
 
-        Public ReadOnly Property TotalAmount As Decimal
+        Private _discountRate As Decimal = 0
+        Public Property DiscountRate As Decimal
             Get
-                Return CartItems.Sum(Function(i) i.Subtotal)
+                Return _discountRate
             End Get
+            Set(ByVal value As Decimal)
+                SetProperty(_discountRate, value)
+                CalculateTotals()
+            End Set
         End Property
 
-        Private _searchText As String
-        Public Property SearchText As String
+        Private _taxAmount As Decimal
+        Public Property TaxAmount As Decimal
             Get
-                Return _searchText
+                Return _taxAmount
+            End Get
+            Set(ByVal value As Decimal)
+                SetProperty(_taxAmount, value)
+            End Set
+        End Property
+
+        Private _totalAmount As Decimal
+        Public Property TotalAmount As Decimal
+            Get
+                Return _totalAmount
+            End Get
+            Set(ByVal value As Decimal)
+                SetProperty(_totalAmount, value)
+            End Set
+        End Property
+
+        Private _amountPaid As Decimal
+        Public Property AmountPaid As Decimal
+            Get
+                Return _amountPaid
+            End Get
+            Set(ByVal value As Decimal)
+                SetProperty(_amountPaid, value)
+                CalculateChange()
+            End Set
+        End Property
+
+        Private _changeDue As Decimal
+        Public Property ChangeDue As Decimal
+            Get
+                Return _changeDue
+            End Get
+            Set(ByVal value As Decimal)
+                SetProperty(_changeDue, value)
+            End Set
+        End Property
+
+        ' Payment & Billing
+        Public Property PaymentMethods As String() = {"Cash", "Card", "EcoCash", "Innbuck", "Bank Transfer"}
+        
+        Private _selectedPaymentMethod As String = "Cash"
+        Public Property SelectedPaymentMethod As String
+            Get
+                Return _selectedPaymentMethod
             End Get
             Set(ByVal value As String)
-                SetProperty(_searchText, value)
+                SetProperty(_selectedPaymentMethod, value)
+            End Set
+        End Property
+
+        Private _customerName As String = "Walk-in Customer"
+        Public Property CustomerName As String
+            Get
+                Return _customerName
+            End Get
+            Set(ByVal value As String)
+                SetProperty(_customerName, value)
+            End Set
+        End Property
+
+        ' Item Entry
+        Private _barcodeInput As String
+        Public Property BarcodeInput As String
+            Get
+                Return _barcodeInput
+            End Get
+            Set(ByVal value As String)
+                SetProperty(_barcodeInput, value)
+            End Set
+        End Property
+
+        Private _cartItems As ObservableCollection(Of SaleDetail)
+        Public Property CartItems As ObservableCollection(Of SaleDetail)
+            Get
+                Return _cartItems
+            End Get
+            Set(ByVal value As ObservableCollection(Of SaleDetail))
+                SetProperty(_cartItems, value)
+                UpdateSubtotal()
             End Set
         End Property
 
@@ -67,29 +142,38 @@ Namespace ViewModels
         End Property
 
         ' Commands
+        Public Property QuickAddCommand As IRelayCommand
         Public Property AddItemCommand As IRelayCommand(Of Product)
-        Public Property RemoveItemCommand As IRelayCommand(Of CartItem)
+        Public Property RemoveItemCommand As IRelayCommand(Of SaleDetail)
         Public Property CheckoutCommand As IRelayCommand
-        Public Property SearchCommand As IRelayCommand
+        Public Property AbortCommand As IRelayCommand
 
         Public Sub New(cashierId As Integer)
             _dbService = New DatabaseService()
             _cashierId = cashierId
-            CartItems = New ObservableCollection(Of CartItem)()
+            CartItems = New ObservableCollection(Of SaleDetail)()
             LoadInventory()
 
+            QuickAddCommand = New RelayCommand(AddressOf AddByBarcode)
             AddItemCommand = New RelayCommand(Of Product)(AddressOf AddToCart)
-            RemoveItemCommand = New RelayCommand(Of CartItem)(AddressOf RemoveFromCart)
+            RemoveItemCommand = New RelayCommand(Of SaleDetail)(AddressOf RemoveFromCart)
             CheckoutCommand = New RelayCommand(AddressOf ExecuteCheckout, Function() CartItems.Count > 0)
-            SearchCommand = New RelayCommand(AddressOf LoadInventory)
+            AbortCommand = New RelayCommand(AddressOf ClearAll)
         End Sub
 
         Private Sub LoadInventory()
-            Dim all = _dbService.GetAllProducts()
-            If String.IsNullOrWhiteSpace(SearchText) Then
-                Inventory = all
+            Inventory = _dbService.GetAllProducts()
+        End Sub
+
+        Private Sub AddByBarcode()
+            If String.IsNullOrWhiteSpace(BarcodeInput) Then Return
+            
+            Dim product = _dbService.GetProductByBarcode(BarcodeInput)
+            If product IsNot Nothing Then
+                AddToCart(product)
+                BarcodeInput = String.Empty
             Else
-                Inventory = all.Where(Function(p) p.Name.ToLower().Contains(SearchText.ToLower()) OrElse p.Barcode.Contains(SearchText)).ToList()
+                StatusMessage = "Product not found!"
             End If
         End Sub
 
@@ -99,52 +183,89 @@ Namespace ViewModels
                 Return
             End If
 
-            Dim existing = CartItems.FirstOrDefault(Function(i) i.Product.Id = product.Id)
+            Dim existing = CartItems.FirstOrDefault(Function(i) i.ProductId = product.Id)
             If existing IsNot Nothing Then
                 existing.Quantity += 1
-                existing.Subtotal = existing.Quantity * existing.Product.Price
+                existing.Total = existing.Quantity * existing.UnitPrice * (1 - (existing.DiscountPercent / 100))
             Else
-                CartItems.Add(New CartItem With {
-                    .Product = product,
+                CartItems.Add(New SaleDetail With {
+                    .ProductId = product.Id,
+                    .ProductName = product.Name,
                     .Quantity = 1,
-                    .Subtotal = product.Price
+                    .UnitPrice = product.Price,
+                    .DiscountPercent = 0,
+                    .Total = product.Price
                 })
             End If
             
-            OnPropertyChanged(NameOf(TotalAmount))
+            UpdateSubtotal()
             CheckoutCommand.NotifyCanExecuteChanged()
             StatusMessage = $"Added {product.Name} to cart."
         End Sub
 
-        Private Sub RemoveFromCart(item As CartItem)
+        Private Sub RemoveFromCart(item As SaleDetail)
             If item IsNot Nothing Then
                 CartItems.Remove(item)
-                OnPropertyChanged(NameOf(TotalAmount))
+                UpdateSubtotal()
                 CheckoutCommand.NotifyCanExecuteChanged()
             End If
         End Sub
 
+        Private Sub UpdateSubtotal()
+            Subtotal = CartItems.Sum(Function(i) i.Total)
+        End Sub
+
+        Private Sub CalculateTotals()
+            Dim discount = Subtotal * (DiscountRate / 100)
+            Dim taxableAmount = Subtotal - discount
+            TaxAmount = taxableAmount * 0.15D ' Assuming 15% VAT
+            TotalAmount = taxableAmount + TaxAmount
+            CalculateChange()
+        End Sub
+
+        Private Sub CalculateChange()
+            If AmountPaid >= TotalAmount Then
+                ChangeDue = AmountPaid - TotalAmount
+            Else
+                ChangeDue = 0
+            End If
+        End Sub
+
+        Private Sub ClearAll()
+            CartItems.Clear()
+            UpdateSubtotal()
+            AmountPaid = 0
+            DiscountRate = 0
+            CustomerName = "Walk-in Customer"
+            StatusMessage = "Transaction aborted."
+        End Sub
+
         Private Sub ExecuteCheckout()
+            If AmountPaid < TotalAmount AndAlso SelectedPaymentMethod = "Cash" Then
+                StatusMessage = "Insufficient cash payment!"
+                Return
+            End If
+
             Dim sale = New Sale With {
                 .CashierId = _cashierId,
+                .Subtotal = Subtotal,
+                .DiscountAmount = Subtotal * (DiscountRate / 100),
+                .TaxAmount = TaxAmount,
                 .TotalAmount = TotalAmount,
+                .AmountPaid = AmountPaid,
+                .ChangeDue = ChangeDue,
+                .PaymentMethod = SelectedPaymentMethod,
+                .CustomerName = CustomerName,
                 .SaleDate = DateTime.Now
             }
 
-            Dim details = CartItems.Select(Function(i) New SaleDetail With {
-                .ProductId = i.Product.Id,
-                .Quantity = i.Quantity,
-                .UnitPrice = i.Product.Price
-            }).ToList()
-
-            If _dbService.ProcessSale(sale, details) Then
+            If _dbService.ProcessSale(sale, CartItems.ToList()) Then
                 StatusMessage = "Sale processed successfully!"
-                CartItems.Clear()
+                ' In a real app, you'd trigger receipt printing here
+                ClearAll()
                 LoadInventory()
-                OnPropertyChanged(NameOf(TotalAmount))
-                CheckoutCommand.NotifyCanExecuteChanged()
             Else
-                StatusMessage = "Transaction failed. Please try again."
+                StatusMessage = "Transaction failed. Database error."
             End If
         End Sub
     End Class
