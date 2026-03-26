@@ -65,6 +65,16 @@ Namespace ViewModels
             End Set
         End Property
 
+        Private _status As String = "Ready"
+        Public Property Status As String
+            Get
+                Return _status
+            End Get
+            Set(ByVal value As String)
+                SetProperty(_status, value)
+            End Set
+        End Property
+
         Private _isProductsMenuExpanded As Boolean = False
         Public Property IsProductsMenuExpanded As Boolean
             Get

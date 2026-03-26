@@ -159,12 +159,12 @@
 
                                 <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,15,0">
                                     <TextBlock Text="Price" Margin="0,0,0,5" Foreground="#555"/>
-                                    <TextBox Text="{Binding NewPrice, UpdateSourceTrigger=PropertyChanged}" Padding="10,8"/>
+                                    <TextBox Text="{Binding NewPrice, UpdateSourceTrigger=PropertyChanged, TargetNullValue=0, FallbackValue=0}" Padding="10,8"/>
                                 </StackPanel>
                                 
                                 <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,15,0">
                                     <TextBlock Text="Initial Stock" Margin="0,0,0,5" Foreground="#555"/>
-                                    <TextBox Text="{Binding NewStock, UpdateSourceTrigger=PropertyChanged}" Padding="10,8"/>
+                                    <TextBox Text="{Binding NewStock, UpdateSourceTrigger=PropertyChanged, TargetNullValue=0, FallbackValue=0}" Padding="10,8"/>
                                 </StackPanel>
                             </Grid>
                             
@@ -191,7 +191,7 @@
                                 <DataGridTextColumn Header="PRODUCT NAME" Binding="{Binding Name}" Width="*"/>
                                 <DataGridTextColumn Header="CATEGORY" Binding="{Binding Category}" Width="150"/>
                                 <DataGridTextColumn Header="PRICE" Binding="{Binding Price, StringFormat=C2}" Width="100"/>
-                                <DataGridTextColumn Header="STOCK" Binding="{Binding StockQuantity}" Width="100"/>
+                                <DataGridTextColumn Header="STOCK" Binding="{Binding StockQuantity}" Width="100" IsReadOnly="True"/>
                                 <DataGridTemplateColumn Header="ACTIONS" Width="100">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>

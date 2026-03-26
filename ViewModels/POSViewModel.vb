@@ -11,6 +11,7 @@ Namespace ViewModels
 
         Private ReadOnly _dbService As DatabaseService
         Private _cashierId As Integer
+        Private _lastSaleId As Integer
 
         ' Financials
         Private _subtotal As Decimal
@@ -73,6 +74,37 @@ Namespace ViewModels
             End Get
             Set(ByVal value As Decimal)
                 SetProperty(_changeDue, value)
+            End Set
+        End Property
+
+        ' Receipt Toggle
+        Private _isReceiptVisible As Boolean
+        Public Property IsReceiptVisible As Boolean
+            Get
+                Return _isReceiptVisible
+            End Get
+            Set(ByVal value As Boolean)
+                SetProperty(_isReceiptVisible, value)
+            End Set
+        End Property
+
+        Private _lastSale As Sale
+        Public Property LastSale As Sale
+            Get
+                Return _lastSale
+            End Get
+            Set(ByVal value As Sale)
+                SetProperty(_lastSale, value)
+            End Set
+        End Property
+
+        Private _lastSaleDetails As List(Of SaleDetail)
+        Public Property LastSaleDetails As List(Of SaleDetail)
+            Get
+                Return _lastSaleDetails
+            End Get
+            Set(ByVal value As List(Of SaleDetail))
+                SetProperty(_lastSaleDetails, value)
             End Set
         End Property
 
@@ -174,6 +206,7 @@ Namespace ViewModels
         Public Property AbortCommand As IRelayCommand
         Public Property HoldCommand As IRelayCommand
         Public Property RecallCommand As IRelayCommand(Of Integer)
+        Public Property CloseReceiptCommand As IRelayCommand
 
         Private _heldSales As ObservableCollection(Of Object)
         Public Property HeldSales As ObservableCollection(Of Object)
@@ -201,6 +234,7 @@ Namespace ViewModels
             AbortCommand = New RelayCommand(AddressOf ClearAll)
             HoldCommand = New RelayCommand(AddressOf ExecuteHold, Function() CartItems.Count > 0)
             RecallCommand = New RelayCommand(Of Integer)(AddressOf ExecuteRecall)
+            CloseReceiptCommand = New RelayCommand(AddressOf CloseReceipt)
             
             HeldSales = New ObservableCollection(Of Object)()
             LoadHeldSales()
@@ -317,12 +351,26 @@ Namespace ViewModels
             CustomerName = "Walk-in Customer"
             StatusMessage = "Transaction aborted."
         End Sub
-
         Private Sub ExecuteCheckout()
-            If AmountPaid < TotalAmount AndAlso SelectedPaymentMethod = "Cash" Then
-                StatusMessage = "Insufficient cash payment!"
+            If CartItems.Count = 0 Then
+                StatusMessage = "Cannot process an empty sale!"
                 Return
             End If
+
+            ' For Cash: if no amount entered, default to exact amount (no change)
+            ' For Card/EcoCash: no amount required
+            If SelectedPaymentMethod = "Cash" AndAlso AmountPaid = 0 Then
+                AmountPaid = TotalAmount
+            ElseIf SelectedPaymentMethod <> "Cash" Then
+                AmountPaid = TotalAmount
+                ChangeDue = 0
+            ElseIf AmountPaid < TotalAmount Then
+                StatusMessage = "Insufficient cash amount!"
+                Return
+            End If
+
+            ' Store details for receipt BEFORE clearing
+            LastSaleDetails = CartItems.ToList()
 
             Dim sale = New Sale With {
                 .CashierId = _cashierId,
@@ -336,15 +384,27 @@ Namespace ViewModels
                 .CustomerName = CustomerName,
                 .SaleDate = DateTime.Now
             }
+            
+            LastSale = sale
+            LastSale.SaleDate = DateTime.Now
 
-            If _dbService.ProcessSale(sale, CartItems.ToList()) Then
-                StatusMessage = "Sale processed successfully!"
-                ' In a real app, you'd trigger receipt printing here
-                ClearAll()
+            ' Always show the receipt so the cashier sees the transaction
+            IsReceiptVisible = True
+
+            ' Save to DB and reduce stock
+            Dim result = _dbService.ProcessSale(sale, LastSaleDetails)
+            If result.Id > 0 Then
+                LastSale.Id = result.Id
+                StatusMessage = "Sale processed successfully! Stock updated."
                 LoadInventory()
             Else
-                StatusMessage = "Transaction failed. Database error."
+                StatusMessage = $"DB Error: {result.ErrorMsg}"
             End If
+        End Sub
+
+        Private Sub CloseReceipt()
+            IsReceiptVisible = False
+            ClearAll()
         End Sub
 
         Private Sub LoadHeldSales()

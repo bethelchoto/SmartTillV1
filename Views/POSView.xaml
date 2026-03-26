@@ -10,6 +10,7 @@
              Background="#EDF1F7">
 
     <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <!-- Modern Colors -->
         <Color x:Key="PrimaryPurple">#2C1A4D</Color>
         <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryPurple}"/>
@@ -93,7 +94,7 @@
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="POS Terminal" FontWeight="Bold" FontSize="18" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,15,0"/>
                 <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="10,0"/>
-                <TextBlock Text="Welcome," Foreground="#888" VerticalAlignment="Center"/>
+                <TextBlock Text="Welcome," Foreground="#444" VerticalAlignment="Center"/>
                 <TextBlock Text="Jane Doe" FontWeight="SemiBold" Margin="5,0,15,0" VerticalAlignment="Center"/>
                 <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="10,0"/>
                 <TextBlock Text="Branch A" Margin="5,0,15,0" VerticalAlignment="Center"/>
@@ -124,7 +125,7 @@
                 <Grid Grid.Row="0" Margin="0,0,10,10">
                     <Border Background="White" CornerRadius="12" Padding="15,5" Effect="{StaticResource SoftShadow}">
                         <DockPanel>
-                            <TextBlock Text="🔍" VerticalAlignment="Center" Margin="0,0,15,0" Foreground="#AAA"/>
+                            <TextBlock Text="🔍" VerticalAlignment="Center" Margin="0,0,15,0" Foreground="#666"/>
                             <TextBox BorderThickness="0" FontSize="18" VerticalAlignment="Center" 
                                      Text="{Binding BarcodeInput, UpdateSourceTrigger=PropertyChanged}"
                                      GotFocus="Search_GotFocus">
@@ -150,7 +151,7 @@
                                                 </Grid.ColumnDefinitions>
                                                 <StackPanel>
                                                     <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="16" Foreground="{StaticResource PrimaryBrush}"/>
-                                                    <TextBlock Text="{Binding Barcode}" FontSize="12" Foreground="#888"/>
+                                                    <TextBlock Text="{Binding Barcode}" FontSize="12" Foreground="#444"/>
                                                 </StackPanel>
                                                 <TextBlock Grid.Column="1" Text="{Binding Price, StringFormat=C2}" FontWeight="Bold" FontSize="18" VerticalAlignment="Center" Foreground="{StaticResource PrimaryBrush}"/>
                                                 </Grid>
@@ -169,7 +170,7 @@
                         <DataGrid.Resources>
                             <Style TargetType="DataGridColumnHeader">
                                 <Setter Property="Background" Value="Transparent"/>
-                                <Setter Property="Foreground" Value="#888"/>
+                                <Setter Property="Foreground" Value="#444"/>
                                 <Setter Property="Padding" Value="20,10"/>
                                 <Setter Property="FontWeight" Value="SemiBold"/>
                                 <Setter Property="BorderThickness" Value="0,0,0,1"/>
@@ -182,7 +183,7 @@
                                     <DataTemplate>
                                         <StackPanel VerticalAlignment="Center" Margin="20,0">
                                             <TextBlock Text="{Binding ProductName}" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"/>
-                                            <TextBlock Text="{Binding ProductId, StringFormat='SKU: {0}'}" FontSize="11" Foreground="#888"/>
+                                            <TextBlock Text="{Binding ProductId, StringFormat='SKU: {0}'}" FontSize="11" Foreground="#444"/>
                                         </StackPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -254,8 +255,8 @@
                                 <StackPanel>
                                     <TextBlock Text="Walk-in Customer" FontWeight="SemiBold"/>
                                     <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                        <TextBlock Text="Loyalty Points: 0" FontSize="11" Foreground="#888" Margin="0,0,15,0"/>
-                                        <TextBlock Text="Total Visits: 0" FontSize="11" Foreground="#888"/>
+                                        <TextBlock Text="Loyalty Points: 0" FontSize="11" Foreground="#444" Margin="0,0,15,0"/>
+                                        <TextBlock Text="Total Visits: 0" FontSize="11" Foreground="#444"/>
                                     </StackPanel>
                                 </StackPanel>
                                 <TextBlock Text="Add Customer" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#2196F3" Cursor="Hand" TextDecorations="Underline"/>
@@ -263,7 +264,7 @@
                         </Border>
 
                         <!-- Held Sales List -->
-                        <TextBlock Text="Held Sales" FontSize="12" FontWeight="Bold" Foreground="#888" Margin="0,10,0,5"/>
+                        <TextBlock Text="Held Sales" FontSize="12" FontWeight="Bold" Foreground="#444" Margin="0,10,0,5"/>
                         <ItemsControl ItemsSource="{Binding HeldSales}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -304,19 +305,19 @@
 
                         <!-- Row 1: Subtotal -->
                         <Grid Grid.Row="1" Margin="0,0,0,10">
-                            <TextBlock Text="Subtotal" Foreground="#888"/>
+                            <TextBlock Text="Subtotal" Foreground="#444"/>
                             <TextBlock Text="{Binding Subtotal, StringFormat=C2}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
                         </Grid>
 
                         <!-- Row 2: Discount -->
                         <Grid Grid.Row="2" Margin="0,0,0,10">
-                            <TextBlock Text="Discount %" Foreground="#888" VerticalAlignment="Center"/>
+                            <TextBlock Text="Discount %" Foreground="#444" VerticalAlignment="Center"/>
                             <TextBox Text="{Binding DiscountRate, UpdateSourceTrigger=PropertyChanged}" Width="70" HorizontalAlignment="Right" Padding="5"/>
                         </Grid>
 
                         <!-- Row 3: Tax -->
                         <Grid Grid.Row="3" Margin="0,0,0,20">
-                            <TextBlock Text="Tax (VAT 15%)" Foreground="#888"/>
+                            <TextBlock Text="Tax (VAT 15%)" Foreground="#444"/>
                             <TextBlock Text="{Binding TaxAmount, StringFormat=C2}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
                         </Grid>
 
@@ -338,13 +339,13 @@
 
                         <!-- Row 8: Amount Paid -->
                         <Grid Grid.Row="8" Margin="0,0,0,10">
-                            <TextBlock Text="Amount Paid" Foreground="#888" FontSize="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="Amount Paid" Foreground="#444" FontSize="14" VerticalAlignment="Center"/>
                             <TextBox Text="{Binding AmountPaid, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}" Width="100" HorizontalAlignment="Right" FontSize="16" FontWeight="Bold" Padding="5" TextAlignment="Right"/>
                         </Grid>
 
                         <!-- Row 9: Change -->
                         <Grid Grid.Row="9" Margin="0,0,0,10">
-                            <TextBlock Text="Change Due" Foreground="#888" FontSize="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="Change Due" Foreground="#444" FontSize="14" VerticalAlignment="Center"/>
                             <TextBlock Text="{Binding ChangeDue, StringFormat=C2}" HorizontalAlignment="Right" FontSize="18" FontWeight="Bold" Foreground="#2E7D32"/>
                         </Grid>
 
@@ -389,5 +390,147 @@
             </Grid>
         </Grid>
 
+        <!-- Receipt Overlay -->
+        <Grid Visibility="{Binding IsReceiptVisible, Converter={StaticResource BooleanToVisibilityConverter}}" Panel.ZIndex="1000">
+            <Border Background="#80000000"/>
+            <Border Background="White" Width="400" MaxHeight="700" VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="10" Padding="30" Effect="{StaticResource SoftShadow}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <!-- Branding -->
+                        <StackPanel HorizontalAlignment="Center" Margin="0,0,0,20">
+                            <TextBlock Text="dreamspos" Foreground="#FF9800" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Dreamguys Technologies Pvt Ltd.," FontWeight="Bold" FontSize="14" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            <TextBlock Text="Phone Number: +1 5656665656" Foreground="#666" FontSize="11" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Email: example@gmail.com" Foreground="#666" FontSize="11" HorizontalAlignment="Center"/>
+                        </StackPanel>
+
+                        <TextBlock Text="Tax Invoice" FontWeight="Bold" FontSize="14" HorizontalAlignment="Center" Margin="0,0,0,15"/>
+
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Name:" Foreground="#444" FontSize="11"/>
+                                <TextBlock Text="{Binding CustomerName}" FontWeight="SemiBold" FontSize="11"/>
+                                <TextBlock Text="Invoice No:" Foreground="#444" FontSize="11" Margin="0,5,0,0"/>
+                                <TextBlock Text="{Binding LastSale.Id, StringFormat=CS{0}}" FontWeight="SemiBold" FontSize="11"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                <TextBlock Text="Customer Id: #LL93784" Foreground="#444" FontSize="11"/>
+                                <TextBlock Text="Date:" Foreground="#444" FontSize="11" Margin="0,5,0,0" HorizontalAlignment="Right"/>
+                                <TextBlock Text="{Binding LastSale.SaleDate, StringFormat=\{0:dd.MM.yyyy\}}" FontWeight="SemiBold" FontSize="11" HorizontalAlignment="Right"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Items Table -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto" MinWidth="50"/>
+                                <ColumnDefinition Width="Auto" MinWidth="40"/>
+                                <ColumnDefinition Width="Auto" MinWidth="60"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="#" FontWeight="Bold" FontSize="11"/>
+                            <TextBlock Grid.Column="1" Text="Item" FontWeight="Bold" FontSize="11"/>
+                            <TextBlock Grid.Column="2" Text="Price" FontWeight="Bold" FontSize="11" TextAlignment="Right"/>
+                            <TextBlock Grid.Column="3" Text="Qty" FontWeight="Bold" FontSize="11" TextAlignment="Center"/>
+                            <TextBlock Grid.Column="4" Text="Total" FontWeight="Bold" FontSize="11" TextAlignment="Right"/>
+                        </Grid>
+                        <Separator Background="#EEE" Margin="0,0,0,10"/>
+
+                        <ItemsControl ItemsSource="{Binding LastSaleDetails}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="20"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto" MinWidth="50"/>
+                                            <ColumnDefinition Width="Auto" MinWidth="40"/>
+                                            <ColumnDefinition Width="Auto" MinWidth="60"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="1" Text="{Binding ProductName}" FontSize="11" TextWrapping="Wrap" Foreground="#222"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding UnitPrice, StringFormat=${0:N2}}" FontSize="11" TextAlignment="Right" Foreground="#222"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding Quantity}" FontSize="11" TextAlignment="Center" Foreground="#222"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding Total, StringFormat=${0:N2}}" FontSize="11" TextAlignment="Right" Foreground="#222"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Separator Background="#EEE" Margin="0,10,0,10"/>
+
+                        <!-- Totals Area -->
+                        <Grid HorizontalAlignment="Stretch" Margin="0,0,0,5">
+                            <TextBlock Text="Sub Total :" Foreground="#444" FontSize="11"/>
+                            <TextBlock Text="{Binding LastSale.Subtotal, StringFormat=${0:N2}}" HorizontalAlignment="Right" FontSize="11" FontWeight="SemiBold"/>
+                        </Grid>
+                        <Grid HorizontalAlignment="Stretch" Margin="0,0,0,5">
+                            <TextBlock Text="Discount :" Foreground="#444" FontSize="11"/>
+                            <TextBlock Text="{Binding LastSale.DiscountAmount, StringFormat=-${0:N2}}" HorizontalAlignment="Right" FontSize="11" FontWeight="SemiBold" Foreground="#F44336"/>
+                        </Grid>
+                        <Grid HorizontalAlignment="Stretch" Margin="0,0,0,5">
+                            <TextBlock Text="Shipping :" Foreground="#444" FontSize="11"/>
+                            <TextBlock Text="$0.00" HorizontalAlignment="Right" FontSize="11"/>
+                        </Grid>
+                        <Grid HorizontalAlignment="Stretch" Margin="0,0,0,5">
+                            <TextBlock Text="Tax (15%) :" Foreground="#444" FontSize="11"/>
+                            <TextBlock Text="{Binding LastSale.TaxAmount, StringFormat=${0:N2}}" HorizontalAlignment="Right" FontSize="11" FontWeight="SemiBold"/>
+                        </Grid>
+                        <Grid HorizontalAlignment="Stretch" Margin="0,0,0,5">
+                            <TextBlock Text="Total Bill :" Foreground="#444" FontSize="11"/>
+                            <TextBlock Text="{Binding LastSale.TotalAmount, StringFormat=${0:N2}}" HorizontalAlignment="Right" FontSize="11" FontWeight="Bold"/>
+                        </Grid>
+                        <Grid HorizontalAlignment="Stretch" Margin="0,0,0,10">
+                            <TextBlock Text="Due :" Foreground="#444" FontSize="11"/>
+                            <TextBlock Text="$0.00" HorizontalAlignment="Right" FontSize="11"/>
+                        </Grid>
+
+                        <Grid HorizontalAlignment="Stretch" Margin="0,5,0,20">
+                            <TextBlock Text="Total Payable :" FontWeight="Bold" FontSize="14" Foreground="#1A237E"/>
+                            <TextBlock Text="{Binding LastSale.TotalAmount, StringFormat=${0:N2}}" HorizontalAlignment="Right" FontWeight="Bold" FontSize="16" Foreground="#1A237E"/>
+                        </Grid>
+
+                        <Separator Background="#AAA" Margin="0,0,0,15"/>
+
+                        <!-- Barcode Placeholder -->
+                        <Border BorderBrush="#333" BorderThickness="0,2,0,2" Height="40" Margin="40,0" Opacity="0.8">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Border Width="2" Background="Black" Margin="1,0"/>
+                                    <Border Width="1" Background="Black" Margin="1,0"/>
+                                    <Border Width="3" Background="Black" Margin="1,0"/>
+                                    <Border Width="1" Background="Black" Margin="1,0"/>
+                                    <Border Width="2" Background="Black" Margin="1,0"/>
+                                    <Border Width="1" Background="Black" Margin="1,0"/>
+                                    <Border Width="1" Background="Black" Margin="1,0"/>
+                                    <Border Width="3" Background="Black" Margin="1,0"/>
+                                    <Border Width="1" Background="Black" Margin="1,0"/>
+                                    <Border Width="2" Background="Black" Margin="1,0"/>
+                                    <Border Width="1" Background="Black" Margin="1,0"/>
+                                    <Border Width="3" Background="Black" Margin="1,0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <TextBlock Text="{Binding LastSale.Id, StringFormat=Sale {0}}" HorizontalAlignment="Center" FontSize="10" Margin="0,2,0,0"/>
+
+                        <TextBlock Text="Thank You For Shopping With Us. Please Come Again" FontSize="10" Foreground="#666" HorizontalAlignment="Center" Margin="0,20,0,20"/>
+
+                        <Button Content="Print Receipt" Background="#FF9800" Foreground="White" Height="40" FontWeight="Bold" Command="{Binding CloseReceiptCommand}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="5">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>
