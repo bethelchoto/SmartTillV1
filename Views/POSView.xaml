@@ -22,9 +22,10 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
-                        <Border x:Name="border" Background="White" BorderBrush="#DDD" BorderThickness="1" CornerRadius="8" Margin="0,0,5,0" Padding="15,10">
-                            <StackPanel Orientation="Horizontal">
-                                <ContentPresenter />
+                        <Border x:Name="border" Background="#F0F0F0" CornerRadius="4" Margin="0,0,5,0" Padding="12,8">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock x:Name="icon" Text="💵" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                <ContentPresenter VerticalAlignment="Center"/>
                             </StackPanel>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -32,7 +33,32 @@
                                 <Setter TargetName="border" Property="Background" Value="#4CAF50"/>
                                 <Setter Property="Foreground" Value="White"/>
                             </Trigger>
+                            <!-- Custom icons based on content -->
+                            <DataTrigger Binding="{Binding Content, RelativeSource={RelativeSource Self}}" Value="Card">
+                                <Setter TargetName="icon" Property="Text" Value="💳"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Content, RelativeSource={RelativeSource Self}}" Value="EcoCash">
+                                <Setter TargetName="icon" Property="Text" Value="📱"/>
+                            </DataTrigger>
                         </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="BottomActionButton" TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <ContentPresenter VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -261,10 +287,12 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Button Command="{Binding DataContext.RecallCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Id}" Background="White" BorderBrush="#EEE" BorderThickness="0,0,0,1" HorizontalContentAlignment="Stretch">
-                                        <Grid Padding="5">
-                                            <TextBlock Text="{Binding Reference}" FontSize="12" FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding TotalAmount, StringFormat=C2}" HorizontalAlignment="Right" FontSize="12" Foreground="#2E7D32"/>
-                                        </Grid>
+                                        <Border Padding="5">
+                                            <Grid>
+                                                <TextBlock Text="{Binding Reference}" FontSize="12" FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding TotalAmount, StringFormat=C2}" HorizontalAlignment="Right" FontSize="12" Foreground="#2E7D32"/>
+                                            </Grid>
+                                        </Border>
                                     </Button>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -272,106 +300,110 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Payment Details Section -->
+                <!-- Payment Summary and Actions -->
                 <Border Grid.Row="1" Background="White" CornerRadius="15" Padding="20" Effect="{StaticResource SoftShadow}">
-                    <DockPanel>
-                        <StackPanel DockPanel.Dock="Bottom">
-                            <!-- Process Sale (Brighter Green, Normal Height) -->
-                            <Button Content="PROCESS SALE (F2)" Background="#43A047" Height="45" Margin="0,0,0,10" Command="{Binding CheckoutCommand}" FontWeight="Bold" FontSize="18" Foreground="White">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/> <!-- Header -->
+                            <RowDefinition Height="Auto"/> <!-- Subtotal -->
+                            <RowDefinition Height="Auto"/> <!-- Disc -->
+                            <RowDefinition Height="Auto"/> <!-- Tax -->
+                            <RowDefinition Height="Auto"/> <!-- Spacer -->
+                            <RowDefinition Height="Auto"/> <!-- Grand Total -->
+                            <RowDefinition Height="Auto"/> <!-- Pay Method Label -->
+                            <RowDefinition Height="Auto"/> <!-- Pay Method Buttons -->
+                            <RowDefinition Height="Auto"/> <!-- Amount Paid -->
+                            <RowDefinition Height="Auto"/> <!-- Change -->
+                            <RowDefinition Height="*"/>    <!-- Spacer -->
+                            <RowDefinition Height="Auto"/> <!-- Process Sale -->
+                            <RowDefinition Height="Auto"/> <!-- Hold/Abort -->
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Text="Payment Details" FontWeight="Bold" Margin="0,0,0,15" FontSize="16"/>
+
+                        <!-- Row 1: Subtotal -->
+                        <Grid Grid.Row="1" Margin="0,0,0,10">
+                            <TextBlock Text="Subtotal" Foreground="#888"/>
+                            <TextBlock Text="{Binding Subtotal, StringFormat=C2}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
+                        </Grid>
+
+                        <!-- Row 2: Discount -->
+                        <Grid Grid.Row="2" Margin="0,0,0,10">
+                            <TextBlock Text="Discount %" Foreground="#888" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding DiscountRate, UpdateSourceTrigger=PropertyChanged}" Width="70" HorizontalAlignment="Right" Padding="5"/>
+                        </Grid>
+
+                        <!-- Row 3: Tax -->
+                        <Grid Grid.Row="3" Margin="0,0,0,20">
+                            <TextBlock Text="Tax (VAT 15%)" Foreground="#888"/>
+                            <TextBlock Text="{Binding TaxAmount, StringFormat=C2}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
+                        </Grid>
+
+                        <!-- Row 5: Grand Total -->
+                        <Grid Grid.Row="5" Margin="0,0,0,20">
+                            <TextBlock Text="GRAND TOTAL" FontWeight="Bold" FontSize="18"/>
+                            <TextBlock Text="{Binding TotalAmount, StringFormat=C2}" HorizontalAlignment="Right" FontSize="22" FontWeight="Bold" Foreground="#2E7D32"/>
+                        </Grid>
+
+                        <!-- Row 6: Pay Method Label -->
+                        <TextBlock Grid.Row="6" Text="Payment Method" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,12"/>
+
+                        <!-- Row 7: Pay Method Buttons -->
+                        <UniformGrid Grid.Row="7" Columns="3" Margin="0,0,0,20">
+                            <RadioButton Style="{StaticResource PaymentToggleStyle}" Content="Cash" IsChecked="True" GroupName="PayMethod"/>
+                            <RadioButton Style="{StaticResource PaymentToggleStyle}" Content="Card" GroupName="PayMethod"/>
+                            <RadioButton Style="{StaticResource PaymentToggleStyle}" Content="EcoCash" GroupName="PayMethod"/>
+                        </UniformGrid>
+
+                        <!-- Row 8: Amount Paid -->
+                        <Grid Grid.Row="8" Margin="0,0,0,10">
+                            <TextBlock Text="Amount Paid" Foreground="#888" FontSize="14" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding AmountPaid, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}" Width="100" HorizontalAlignment="Right" FontSize="16" FontWeight="Bold" Padding="5" TextAlignment="Right"/>
+                        </Grid>
+
+                        <!-- Row 9: Change -->
+                        <Grid Grid.Row="9" Margin="0,0,0,10">
+                            <TextBlock Text="Change Due" Foreground="#888" FontSize="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ChangeDue, StringFormat=C2}" HorizontalAlignment="Right" FontSize="18" FontWeight="Bold" Foreground="#2E7D32"/>
+                        </Grid>
+
+                        <!-- Row 11: Process Sale -->
+                        <Button Grid.Row="11" Content="PROCESS SALE (F2)" Background="#4CAF50" Foreground="White" Height="50" FontSize="18" FontWeight="Bold" Margin="0,10,0,10" Command="{Binding CheckoutCommand}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="10">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+
+                        <!-- Row 12: Hold / Abort -->
+                        <Grid Grid.Row="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Content="HOLD SALE" Background="#FF9800" Foreground="White" Height="40" Margin="0,0,5,0" Command="{Binding HoldCommand}">
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
-                                        <Border Background="{TemplateBinding Background}" CornerRadius="10">
+                                        <Border Background="{TemplateBinding Background}" CornerRadius="6">
                                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
                                     </ControlTemplate>
                                 </Button.Template>
                             </Button>
-                            
-                            <!-- Secondary Actions -->
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Button Content="HOLD SALE" Background="#FB8C00" Foreground="White" Height="40" Margin="0,0,5,0" BorderThickness="0" Command="{Binding HoldCommand}">
-                                    <Button.Template>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
-                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                </Button>
-                                <Button Content="ABORT SALE" Background="#E53935" Foreground="White" Height="40" Margin="5,0,0,0" BorderThickness="0" Command="{Binding AbortCommand}">
-                                    <Button.Template>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
-                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                </Button>
-                            </Grid>
-                        </StackPanel>
-
-                        <StackPanel>
-                            <TextBlock Text="Payment Details" FontWeight="Bold" Margin="0,0,0,20"/>
-                            
-                            <Grid Margin="0,0,0,12">
-                                <TextBlock Text="Subtotal" Foreground="#888"/>
-                                <TextBlock Text="{Binding Subtotal, StringFormat=C2}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
-                            </Grid>
-
-                            <Grid Margin="0,0,0,12">
-                                <TextBlock Text="Discount %" Foreground="#888" VerticalAlignment="Center"/>
-                                <TextBox Text="{Binding DiscountRate, UpdateSourceTrigger=PropertyChanged}" Width="70" HorizontalAlignment="Right" Padding="5"/>
-                            </Grid>
-
-                            <Grid Margin="0,0,0,12">
-                                <TextBlock Text="Tax (VAT 15%)" Foreground="#888"/>
-                                <TextBlock Text="{Binding TaxAmount, StringFormat=C2}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
-                            </Grid>
-
-                            <Separator Margin="0,10"/>
-                            
-                            <Grid Margin="0,10,0,20">
-                                <TextBlock Text="GRAND TOTAL" FontWeight="Bold" FontSize="18"/>
-                                <TextBlock Text="{Binding TotalAmount, StringFormat=C2}" HorizontalAlignment="Right" FontSize="22" FontWeight="Bold" Foreground="#2E7D32"/>
-                            </Grid>
-
-                            <TextBlock Text="Payment Method" FontSize="11" Foreground="#888" Margin="0,0,0,8"/>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                                <RadioButton Style="{StaticResource PaymentToggleStyle}" IsChecked="True" GroupName="PayMethod">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="💵" Margin="0,0,5,0"/>
-                                        <TextBlock Text="Cash"/>
-                                    </StackPanel>
-                                </RadioButton>
-                                <RadioButton Style="{StaticResource PaymentToggleStyle}" GroupName="PayMethod">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="💳" Margin="0,0,5,0"/>
-                                        <TextBlock Text="Card"/>
-                                    </StackPanel>
-                                </RadioButton>
-                                <RadioButton Style="{StaticResource PaymentToggleStyle}" GroupName="PayMethod">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="📱" Margin="0,0,5,0"/>
-                                        <TextBlock Text="EcoCash"/>
-                                    </StackPanel>
-                                </RadioButton>
-                            </StackPanel>
-
-                            <Grid Margin="0,0,0,10">
-                                <TextBlock Text="Amount Paid" Foreground="#888" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding AmountPaid, StringFormat=C2}" HorizontalAlignment="Right" FontWeight="Bold"/>
-                            </Grid>
-
-                            <Grid>
-                                <TextBlock Text="Change" Foreground="#888" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding ChangeDue, StringFormat=C2}" HorizontalAlignment="Right" FontWeight="Bold"/>
-                            </Grid>
-                        </StackPanel>
-                    </DockPanel>
+                            <Button Grid.Column="1" Content="ABORT SALE" Background="#F44336" Foreground="White" Height="40" Margin="5,0,0,0" Command="{Binding AbortCommand}">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </Grid>
+                    </Grid>
                 </Border>
             </Grid>
         </Grid>

@@ -100,6 +100,33 @@ Namespace Services
                     FOREIGN KEY (SaleId) REFERENCES Sales(Id),
                     FOREIGN KEY (ProductId) REFERENCES Products(Id)
                 );")
+
+                ' Create Held Sales Tables
+                db.Execute("CREATE TABLE IF NOT EXISTS HeldSales (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    CashierId INTEGER,
+                    Subtotal DECIMAL,
+                    DiscountAmount DECIMAL,
+                    TaxAmount DECIMAL,
+                    TotalAmount DECIMAL,
+                    CustomerName TEXT,
+                    HeldDate DATETIME,
+                    Reference TEXT,
+                    FOREIGN KEY (CashierId) REFERENCES Users(Id)
+                );")
+
+                db.Execute("CREATE TABLE IF NOT EXISTS HeldSaleDetails (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    HeldSaleId INTEGER,
+                    ProductId INTEGER,
+                    ProductName TEXT,
+                    Quantity INTEGER,
+                    UnitPrice DECIMAL,
+                    DiscountPercent DECIMAL,
+                    Total DECIMAL,
+                    FOREIGN KEY (HeldSaleId) REFERENCES HeldSales(Id),
+                    FOREIGN KEY (ProductId) REFERENCES Products(Id)
+                );")
             End Using
         End Sub
 
