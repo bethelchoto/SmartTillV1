@@ -82,15 +82,14 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Margin="15">
+    <Grid Margin="5,10,10,10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Top Navigation Status Bar -->
-        <Border Grid.Row="0" Margin="0,0,0,15">
+        <Border Grid.Row="0" Margin="0,0,0,10">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="POS Terminal" FontWeight="Bold" FontSize="18" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,15,0"/>
                 <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="10,0"/>
@@ -119,11 +118,10 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <!-- Search Bar with Dropdown -->
-                <Grid Grid.Row="0" Margin="0,0,15,20">
+                <Grid Grid.Row="0" Margin="0,0,10,10">
                     <Border Background="White" CornerRadius="12" Padding="15,5" Effect="{StaticResource SoftShadow}">
                         <DockPanel>
                             <TextBlock Text="🔍" VerticalAlignment="Center" Margin="0,0,15,0" Foreground="#AAA"/>
@@ -238,23 +236,6 @@
                     </DataGrid>
                 </Border>
 
-                <!-- Footer Summary (Left Side) -->
-                <Border Grid.Row="2" Background="White" CornerRadius="15" Margin="0,15,15,0" Padding="25,15" Effect="{StaticResource SoftShadow}">
-                    <Grid>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Subtotal" Foreground="#888" Margin="0,0,10,0"/>
-                            <TextBlock Text="{Binding Subtotal, StringFormat=C2}" FontWeight="Bold" Margin="0,0,30,0"/>
-
-                            <TextBlock Text="Discount" Foreground="#888" Margin="0,0,10,0"/>
-                            <TextBlock Text="{Binding DiscountAmount, StringFormat=C2}" FontWeight="Bold" Margin="0,0,30,0"/>
-
-                            <TextBlock Text="Tax (VAT 15%)" Foreground="#888" Margin="0,0,10,0"/>
-                            <TextBlock Text="{Binding TaxAmount, StringFormat=C2}" FontWeight="Bold"/>
-                        </StackPanel>
-                        
-                        <TextBlock Text="Limited stock! Only 3 left for Casual Checked Shirt" Visibility="Collapsed" HorizontalAlignment="Right" Foreground="#E65100" FontWeight="SemiBold"/>
-                    </Grid>
-                </Border>
             </Grid>
 
             <!-- Right Sidebar: Payments -->
@@ -265,7 +246,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- Customer Section -->
-                <Border Grid.Row="0" Background="White" CornerRadius="15" Padding="20" Margin="0,0,0,15" Effect="{StaticResource SoftShadow}">
+                <Border Grid.Row="0" Background="White" CornerRadius="12" Padding="15,10" Margin="0,0,0,10" Effect="{StaticResource SoftShadow}">
                     <StackPanel>
                         <TextBlock Text="Payment" FontWeight="Bold" FontSize="18" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,15"/>
                         <Border Background="#F4F7FA" CornerRadius="8" Padding="12" Margin="0,0,0,10">
@@ -301,7 +282,7 @@
                 </Border>
 
                 <!-- Payment Summary and Actions -->
-                <Border Grid.Row="1" Background="White" CornerRadius="15" Padding="20" Effect="{StaticResource SoftShadow}">
+                <Border Grid.Row="1" Background="White" CornerRadius="12" Padding="15,10" Effect="{StaticResource SoftShadow}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/> <!-- Header -->
@@ -314,12 +295,12 @@
                             <RowDefinition Height="Auto"/> <!-- Pay Method Buttons -->
                             <RowDefinition Height="Auto"/> <!-- Amount Paid -->
                             <RowDefinition Height="Auto"/> <!-- Change -->
-                            <RowDefinition Height="*"/>    <!-- Spacer -->
+                            <RowDefinition Height="Auto"/> <!-- Spacer reduced -->
                             <RowDefinition Height="Auto"/> <!-- Process Sale -->
                             <RowDefinition Height="Auto"/> <!-- Hold/Abort -->
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0" Text="Payment Details" FontWeight="Bold" Margin="0,0,0,15" FontSize="16"/>
+                        <TextBlock Grid.Row="0" Text="Payment Details" FontWeight="Bold" Margin="0,0,0,10" FontSize="15"/>
 
                         <!-- Row 1: Subtotal -->
                         <Grid Grid.Row="1" Margin="0,0,0,10">
@@ -340,13 +321,13 @@
                         </Grid>
 
                         <!-- Row 5: Grand Total -->
-                        <Grid Grid.Row="5" Margin="0,0,0,20">
-                            <TextBlock Text="GRAND TOTAL" FontWeight="Bold" FontSize="18"/>
-                            <TextBlock Text="{Binding TotalAmount, StringFormat=C2}" HorizontalAlignment="Right" FontSize="22" FontWeight="Bold" Foreground="#2E7D32"/>
+                        <Grid Grid.Row="5" Margin="0,0,0,15">
+                            <TextBlock Text="GRAND TOTAL" FontWeight="Bold" FontSize="16"/>
+                            <TextBlock Text="{Binding TotalAmount, StringFormat=C2}" HorizontalAlignment="Right" FontSize="20" FontWeight="Bold" Foreground="#2E7D32"/>
                         </Grid>
 
                         <!-- Row 6: Pay Method Label -->
-                        <TextBlock Grid.Row="6" Text="Payment Method" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                        <TextBlock Grid.Row="6" Text="Payment Method" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,10"/>
 
                         <!-- Row 7: Pay Method Buttons -->
                         <UniformGrid Grid.Row="7" Columns="3" Margin="0,0,0,20">
@@ -368,7 +349,7 @@
                         </Grid>
 
                         <!-- Row 11: Process Sale -->
-                        <Button Grid.Row="11" Content="PROCESS SALE (F2)" Background="#4CAF50" Foreground="White" Height="50" FontSize="18" FontWeight="Bold" Margin="0,10,0,10" Command="{Binding CheckoutCommand}">
+                        <Button Grid.Row="11" Content="PROCESS SALE (F2)" Background="#4CAF50" Foreground="White" Height="42" FontSize="16" FontWeight="Bold" Margin="0,5,0,8" Command="{Binding CheckoutCommand}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border Background="{TemplateBinding Background}" CornerRadius="10">
@@ -408,15 +389,5 @@
             </Grid>
         </Grid>
 
-        <!-- Legend -->
-        <Border Grid.Row="2" Background="{StaticResource PrimaryBrush}" CornerRadius="8" Padding="20,10" Margin="0,5,0,0">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <TextBlock Text="F1 Search Product" Foreground="White" Margin="0,0,30,0"/>
-                <TextBlock Text="F2 Process Sale" Foreground="White" Margin="0,0,30,0"/>
-                <TextBlock Text="F3 Print Last Receipt" Foreground="White" Margin="0,0,30,0"/>
-                <TextBlock Text="F4 Select Payment" Foreground="White" Margin="0,0,30,0"/>
-                <TextBlock Text="ESC Clear All" Foreground="White"/>
-            </StackPanel>
-        </Border>
     </Grid>
 </UserControl>
