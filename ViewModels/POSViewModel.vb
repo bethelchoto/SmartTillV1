@@ -88,6 +88,17 @@ Namespace ViewModels
             End Set
         End Property
 
+        ' Success Toast
+        Private _isSuccessToastVisible As Boolean
+        Public Property IsSuccessToastVisible As Boolean
+            Get
+                Return _isSuccessToastVisible
+            End Get
+            Set(ByVal value As Boolean)
+                SetProperty(_isSuccessToastVisible, value)
+            End Set
+        End Property
+
         Private _lastSale As Sale
         Public Property LastSale As Sale
             Get
@@ -273,12 +284,17 @@ Namespace ViewModels
 
         Private Sub AddToCart(product As Product)
             If product Is Nothing OrElse product.StockQuantity <= 0 Then
-                StatusMessage = "Item out of stock!"
+                StatusMessage = $"'{If(product?.Name, "Item")}' is OUT OF STOCK!"
                 Return
             End If
 
             Dim existing = CartItems.FirstOrDefault(Function(i) i.ProductId = product.Id)
             If existing IsNot Nothing Then
+                ' Check adding 1 more won't exceed available stock
+                If existing.Quantity + 1 > product.StockQuantity Then
+                    StatusMessage = $"Cannot add more '{product.Name}' — only {product.StockQuantity} in stock!"
+                    Return
+                End If
                 existing.Quantity += 1
                 existing.Total = existing.Quantity * existing.UnitPrice * (1 - (existing.DiscountPercent / 100))
             Else
@@ -291,7 +307,7 @@ Namespace ViewModels
                     .Total = product.Price
                 })
             End If
-            
+
             UpdateSubtotal()
             CheckoutCommand.NotifyCanExecuteChanged()
             StatusMessage = $"Added {product.Name} to cart."
@@ -301,6 +317,13 @@ Namespace ViewModels
 
         Private Sub IncrementQty(item As SaleDetail)
             If item IsNot Nothing Then
+                ' Look up live stock to prevent going over
+                Dim stock = Inventory?.FirstOrDefault(Function(p) p.Id = item.ProductId)
+                Dim available = If(stock IsNot Nothing, stock.StockQuantity, Integer.MaxValue)
+                If item.Quantity + 1 > available Then
+                    StatusMessage = $"Cannot add more '{item.ProductName}' — only {available} in stock!"
+                    Return
+                End If
                 item.Quantity += 1
                 item.Total = item.Quantity * item.UnitPrice * (1 - (item.DiscountPercent / 100))
                 UpdateSubtotal()
@@ -357,6 +380,16 @@ Namespace ViewModels
                 Return
             End If
 
+            ' --- Stock Validation: re-check live inventory before committing ---
+            For Each item In CartItems
+                Dim liveProduct = Inventory?.FirstOrDefault(Function(p) p.Id = item.ProductId)
+                If liveProduct Is Nothing OrElse item.Quantity > liveProduct.StockQuantity Then
+                    Dim available = If(liveProduct IsNot Nothing, liveProduct.StockQuantity, 0)
+                    StatusMessage = $"SALE BLOCKED: '{item.ProductName}' — requested {item.Quantity}, only {available} in stock. Please reduce the quantity."
+                    Return
+                End If
+            Next
+
             ' For Cash: if no amount entered, default to exact amount (no change)
             ' For Card/EcoCash: no amount required
             If SelectedPaymentMethod = "Cash" AndAlso AmountPaid = 0 Then
@@ -397,13 +430,24 @@ Namespace ViewModels
                 LastSale.Id = result.Id
                 StatusMessage = "Sale processed successfully! Stock updated."
                 LoadInventory()
+                ' Show green success toast for 3 seconds
+                IsSuccessToastVisible = True
+                Dim toast = New System.Windows.Threading.DispatcherTimer()
+                toast.Interval = TimeSpan.FromSeconds(3)
+                AddHandler toast.Tick, Sub(s, ev)
+                                           IsSuccessToastVisible = False
+                                           DirectCast(s, System.Windows.Threading.DispatcherTimer).Stop()
+                                       End Sub
+                toast.Start()
             Else
+                IsReceiptVisible = False
                 StatusMessage = $"DB Error: {result.ErrorMsg}"
             End If
         End Sub
 
         Private Sub CloseReceipt()
             IsReceiptVisible = False
+            IsSuccessToastVisible = False
             ClearAll()
         End Sub
 

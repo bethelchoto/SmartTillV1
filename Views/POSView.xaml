@@ -390,6 +390,29 @@
             </Grid>
         </Grid>
 
+        <!-- Success Toast Notification -->
+        <Border Panel.ZIndex="2000"
+                VerticalAlignment="Top" HorizontalAlignment="Center"
+                Margin="0,20,0,0"
+                Visibility="{Binding IsSuccessToastVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                Background="#2E7D32" CornerRadius="12" Padding="24,16"
+                Effect="{StaticResource SoftShadow}">
+            <Border.RenderTransform>
+                <TranslateTransform/>
+            </Border.RenderTransform>
+            <StackPanel Orientation="Horizontal">
+                <Border Background="#4CAF50" CornerRadius="20" Width="36" Height="36" Margin="0,0,14,0">
+                    <TextBlock Text="✓" Foreground="White" FontSize="20" FontWeight="Bold"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Sale Successful!" Foreground="White" FontSize="16" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding LastSale.TotalAmount, StringFormat='Total: ${0:N2} — Stock updated'}"
+                               Foreground="#C8E6C9" FontSize="12" Margin="0,2,0,0"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
         <!-- Receipt Overlay -->
         <Grid Visibility="{Binding IsReceiptVisible, Converter={StaticResource BooleanToVisibilityConverter}}" Panel.ZIndex="1000">
             <Border Background="#80000000"/>
@@ -397,11 +420,17 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
                         <!-- Branding -->
-                        <StackPanel HorizontalAlignment="Center" Margin="0,0,0,20">
-                            <TextBlock Text="dreamspos" Foreground="#FF9800" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Dreamguys Technologies Pvt Ltd.," FontWeight="Bold" FontSize="14" HorizontalAlignment="Center" Margin="0,5,0,0"/>
-                            <TextBlock Text="Phone Number: +1 5656665656" Foreground="#666" FontSize="11" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Email: example@gmail.com" Foreground="#666" FontSize="11" HorizontalAlignment="Center"/>
+                        <StackPanel HorizontalAlignment="Center" Margin="0,0,0,16">
+                            <!-- SmartTill Logo Text -->
+                            <Border Background="#2C1A4D" CornerRadius="8" Padding="16,8" HorizontalAlignment="Center" Margin="0,0,0,8">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Smart" Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Till" Foreground="#FF9800" FontSize="22" FontWeight="Bold" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <TextBlock Text="SmartTill Point of Sale" FontWeight="Bold" FontSize="13" HorizontalAlignment="Center" Foreground="#333"/>
+                            <TextBlock Text="Tel: +263 77 000 0000" Foreground="#666" FontSize="11" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                            <TextBlock Text="Email: info@smarttill.co.zw" Foreground="#666" FontSize="11" HorizontalAlignment="Center"/>
                         </StackPanel>
 
                         <TextBlock Text="Tax Invoice" FontWeight="Bold" FontSize="14" HorizontalAlignment="Center" Margin="0,0,0,15"/>
@@ -473,10 +502,6 @@
                             <TextBlock Text="{Binding LastSale.DiscountAmount, StringFormat=-${0:N2}}" HorizontalAlignment="Right" FontSize="11" FontWeight="SemiBold" Foreground="#F44336"/>
                         </Grid>
                         <Grid HorizontalAlignment="Stretch" Margin="0,0,0,5">
-                            <TextBlock Text="Shipping :" Foreground="#444" FontSize="11"/>
-                            <TextBlock Text="$0.00" HorizontalAlignment="Right" FontSize="11"/>
-                        </Grid>
-                        <Grid HorizontalAlignment="Stretch" Margin="0,0,0,5">
                             <TextBlock Text="Tax (15%) :" Foreground="#444" FontSize="11"/>
                             <TextBlock Text="{Binding LastSale.TaxAmount, StringFormat=${0:N2}}" HorizontalAlignment="Right" FontSize="11" FontWeight="SemiBold"/>
                         </Grid>
@@ -494,28 +519,6 @@
                             <TextBlock Text="{Binding LastSale.TotalAmount, StringFormat=${0:N2}}" HorizontalAlignment="Right" FontWeight="Bold" FontSize="16" Foreground="#1A237E"/>
                         </Grid>
 
-                        <Separator Background="#AAA" Margin="0,0,0,15"/>
-
-                        <!-- Barcode Placeholder -->
-                        <Border BorderBrush="#333" BorderThickness="0,2,0,2" Height="40" Margin="40,0" Opacity="0.8">
-                            <Grid>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <Border Width="2" Background="Black" Margin="1,0"/>
-                                    <Border Width="1" Background="Black" Margin="1,0"/>
-                                    <Border Width="3" Background="Black" Margin="1,0"/>
-                                    <Border Width="1" Background="Black" Margin="1,0"/>
-                                    <Border Width="2" Background="Black" Margin="1,0"/>
-                                    <Border Width="1" Background="Black" Margin="1,0"/>
-                                    <Border Width="1" Background="Black" Margin="1,0"/>
-                                    <Border Width="3" Background="Black" Margin="1,0"/>
-                                    <Border Width="1" Background="Black" Margin="1,0"/>
-                                    <Border Width="2" Background="Black" Margin="1,0"/>
-                                    <Border Width="1" Background="Black" Margin="1,0"/>
-                                    <Border Width="3" Background="Black" Margin="1,0"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                        <TextBlock Text="{Binding LastSale.Id, StringFormat=Sale {0}}" HorizontalAlignment="Center" FontSize="10" Margin="0,2,0,0"/>
 
                         <TextBlock Text="Thank You For Shopping With Us. Please Come Again" FontSize="10" Foreground="#666" HorizontalAlignment="Center" Margin="0,20,0,20"/>
 
